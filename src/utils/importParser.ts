@@ -27,6 +27,14 @@ import {
   makeLinkDef,
 } from '@/utils/defaults';
 import { genId } from '@/utils/stringUtils';
+import type { FigmaComponentSchema } from './figmaApi';
+import { fetchComponentPropertiesWithError, hasToken } from './figmaApi';
+import {
+  matchPropsToFigma,
+  matchPropsToFigmaWithPatterns,
+  generateEnumOptionsFromVariant,
+  type PropMatchResult
+} from './propMatcher';
 
 // ─── Brace / paren / bracket scanners ────────────────────────────────────────
 
@@ -573,8 +581,17 @@ export function parseReactComponentFile(source: string, filename: string): Compo
 // ─── Parse warnings ───────────────────────────────────────────────────────────
 
 export interface ParseWarning {
-  type: 'missing_url' | 'no_props' | 'unknown_type' | 'parse_error';
+  type: 'missing_url' | 'no_props' | 'unknown_type' | 'parse_error' | 'prop_mismatch' | 'type_mismatch';
   message: string;
+  severity?: 'error' | 'warning' | 'info';
+}
+
+export interface EnhancedParseResult {
+  definition: ComponentDefinition;
+  warnings: ParseWarning[];
+  matchResults?: PropMatchResult[];
+  figmaSchema?: FigmaComponentSchema;
+  overallConfidence?: number;
 }
 
 export function getDefinitionWarnings(def: ComponentDefinition): ParseWarning[] {
@@ -582,4 +599,471 @@ export function getDefinitionWarnings(def: ComponentDefinition): ParseWarning[] 
   if (!def.figmaUrl) warnings.push({ type: 'missing_url', message: 'No Figma URL found — paste the Figma design link in Component Configuration.' });
   if (def.props.length === 0) warnings.push({ type: 'no_props', message: 'No props were detected. You can add them manually.' });
   return warnings;
+}
+
+// ─── Figma-Enhanced React Import ──────────────────────────────────────────────
+
+/**
+ * Parse a React component file with Figma URL integration.
+ * Fetches Figma component schema and intelligently matches props.
+ */
+export async function parseReactComponentFileWithFigma(
+  source: string,
+  filename: string,
+  figmaUrl?: string
+): Promise<EnhancedParseResult> {
+  // First, parse the React component normally
+  const basicDef = parseReactComponentFile(source, filename);
+
+  // If no Figma URL provided, return basic result
+  if (!figmaUrl || !figmaUrl.trim()) {
+    return {
+      definition: basicDef,
+      warnings: getDefinitionWarnings(basicDef),
+    };
+  }
+
+  // Fetch Figma component schema with detailed error handling
+  const fetchResult = await fetchComponentPropertiesWithError(figmaUrl);
+  const figmaSchema = fetchResult.schema;
+
+  if (!figmaSchema) {
+    const baseWarnings = getDefinitionWarnings({ ...basicDef, figmaUrl });
+    const figmaWarning: ParseWarning = {
+      type: 'parse_error',
+      message: fetchResult.error?.message || 'Failed to fetch Figma component.',
+      // Make it a warning (not error) if there's no token - this is expected for first-time users
+      severity: fetchResult.error?.code === 'no_token' ? 'warning' : 'error',
+    };
+
+    return {
+      definition: { ...basicDef, figmaUrl },
+      warnings: [...baseWarnings, figmaWarning],
+    };
+  }
+
+  // Extract React prop types for matching
+  const propsBody = extractPropsBody(source);
+  const reactProps = propsBody ? parseTSProps(propsBody) : [];
+
+  // Match React props to Figma properties
+  const matchingReport = matchPropsToFigma(
+    reactProps.map(p => ({ name: p.name, type: p.typeStr })),
+    figmaSchema
+  );
+
+  // Build enhanced props list using matching results
+  const enhancedProps: PropDef[] = [];
+  const warnings: ParseWarning[] = [];
+
+  for (const match of matchingReport.matches) {
+    const base = makePropDef('string');
+    const reactProp = match.reactProp;
+
+    // Use matched Figma prop if confidence is high enough
+    const figmaProp = match.confidence >= 0.6 ? match.figmaProp :
+                      (reactProp.charAt(0).toUpperCase() + reactProp.slice(1));
+
+    // Determine prop type based on Figma type if available
+    let propType: PropDef['type'] = 'string';
+    let enumOptions: any[] | undefined;
+
+    if (match.figmaType && match.typeMatch) {
+      switch (match.figmaType) {
+        case 'BOOLEAN':
+          propType = 'boolean';
+          break;
+        case 'TEXT':
+          propType = 'string';
+          break;
+        case 'INSTANCE_SWAP':
+          propType = 'instance';
+          break;
+        case 'VARIANT':
+          propType = 'enum';
+          if (figmaProp && figmaSchema.properties[figmaProp]) {
+            enumOptions = generateEnumOptionsFromVariant(figmaSchema.properties[figmaProp]);
+          }
+          break;
+      }
+    } else {
+      // Fall back to TypeScript type inference
+      const classified = classifyTSType(match.reactType);
+      if (classified) {
+        propType = classified.type;
+        if (classified.type === 'enum' && classified.enumOptions) {
+          enumOptions = classified.enumOptions;
+        }
+      }
+    }
+
+    // Build the PropDef
+    if (propType === 'boolean') {
+      enhancedProps.push({
+        ...base,
+        reactProp,
+        figmaProp: figmaProp || '',
+        type: 'boolean',
+        boolMode: 'simple',
+        boolChildLayer: '',
+        boolTrueValue: '',
+        boolFalseValue: ''
+      });
+    } else if (propType === 'enum') {
+      enhancedProps.push({
+        ...base,
+        reactProp,
+        figmaProp: figmaProp || '',
+        type: 'enum',
+        enumOptions: enumOptions || [makeEnumOption()]
+      });
+    } else if (propType === 'children') {
+      enhancedProps.push({
+        ...base,
+        reactProp: 'children',
+        figmaProp: '',
+        type: 'children',
+        childrenLayers: ['*']
+      });
+    } else if (propType === 'instance') {
+      enhancedProps.push({
+        ...base,
+        reactProp,
+        figmaProp: figmaProp || '',
+        type: 'instance'
+      });
+    } else if (propType === 'number') {
+      enhancedProps.push({
+        ...base,
+        reactProp,
+        figmaProp: figmaProp || '',
+        type: 'number'
+      });
+    } else {
+      enhancedProps.push({
+        ...base,
+        reactProp,
+        figmaProp: figmaProp || '',
+        type: 'string'
+      });
+    }
+
+    // Add warnings from matching
+    if (match.warnings.length > 0) {
+      warnings.push({
+        type: match.typeMatch ? 'prop_mismatch' : 'type_mismatch',
+        message: `${reactProp}: ${match.warnings.join(', ')}`,
+        severity: match.confidence < 0.6 ? 'warning' : 'info'
+      });
+    }
+  }
+
+  // Add warnings for unmapped Figma props
+  if (matchingReport.unmappedFigmaProps.length > 0) {
+    warnings.push({
+      type: 'prop_mismatch',
+      message: `${matchingReport.unmappedFigmaProps.length} Figma properties not found in React: ${matchingReport.unmappedFigmaProps.map(p => p.name).join(', ')}`,
+      severity: 'info'
+    });
+  }
+
+  const enhancedDef: ComponentDefinition = {
+    ...basicDef,
+    figmaUrl,
+    props: enhancedProps
+  };
+
+  return {
+    definition: enhancedDef,
+    warnings,
+    matchResults: matchingReport.matches,
+    figmaSchema,
+    overallConfidence: matchingReport.overallConfidence
+  };
+}
+
+/**
+ * Helper to extract props body from source (DRY for enhanced parser).
+ */
+function extractPropsBody(source: string): string | null {
+  // Try interface first
+  const interfaceRe = /(?:export\s+)?interface\s+(\w*Props\w*)\s*(?:extends\s+[^{]*)?\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = interfaceRe.exec(source)) !== null) {
+    const braceStart = match.index + match[0].length - 1;
+    const braceEnd = findMatchingClose(source, braceStart, '{', '}');
+    if (braceEnd !== -1) {
+      return source.slice(braceStart + 1, braceEnd - 1);
+    }
+  }
+
+  // Try type alias
+  const typeRe = /(?:export\s+)?type\s+(\w*Props\w*)\s*=\s*\{/g;
+  while ((match = typeRe.exec(source)) !== null) {
+    const braceStart = match.index + match[0].length - 1;
+    const braceEnd = findMatchingClose(source, braceStart, '{', '}');
+    if (braceEnd !== -1) {
+      return source.slice(braceStart + 1, braceEnd - 1);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Parse a React component file with manually defined Figma properties.
+ * Uses semantic pattern detection and intelligent estimation instead of API fetch.
+ */
+export async function parseReactComponentFileWithManualFigma(
+  source: string,
+  filename: string,
+  manualFigmaProps: Array<{
+    name: string;
+    type: 'BOOLEAN' | 'TEXT' | 'VARIANT' | 'INSTANCE_SWAP';
+    defaultValue?: string | boolean;
+    variantOptions?: string[];
+    description?: string;
+  }>
+): Promise<EnhancedParseResult> {
+  // First, parse the React component normally
+  const basicDef = parseReactComponentFile(source, filename);
+
+  // If no manual Figma properties provided, return basic result
+  if (!manualFigmaProps || manualFigmaProps.length === 0) {
+    return {
+      definition: basicDef,
+      warnings: getDefinitionWarnings(basicDef),
+    };
+  }
+
+  // Construct pseudo-FigmaComponentSchema from manual input
+  const figmaSchema: FigmaComponentSchema = {
+    id: 'manual-input',
+    name: basicDef.name || 'Component',
+    type: 'COMPONENT',
+    properties: Object.fromEntries(
+      manualFigmaProps.map(prop => [
+        prop.name,
+        {
+          name: prop.name,
+          type: prop.type,
+          defaultValue: prop.defaultValue,
+          variantOptions: prop.variantOptions,
+        },
+      ])
+    ),
+    variantGroupProperties: Object.fromEntries(
+      manualFigmaProps
+        .filter(p => p.type === 'VARIANT' && p.variantOptions)
+        .map(p => [p.name, p.variantOptions!])
+    ),
+  };
+
+  // Extract React prop types for matching with JSDoc comments
+  const propsBody = extractPropsBody(source);
+  const reactProps = propsBody ? parseTSPropsWithJSDoc(source, propsBody) : [];
+
+  // Match React props to manual Figma properties with pattern detection
+  const matchingReport = matchPropsToFigmaWithPatterns(
+    reactProps.map(p => ({ name: p.name, type: p.typeStr, jsDoc: p.jsDoc })),
+    figmaSchema
+  );
+
+  // Build enhanced props list using matching results
+  const enhancedProps: PropDef[] = [];
+  const warnings: ParseWarning[] = [];
+
+  for (const match of matchingReport.matches) {
+    let propDef: PropDef;
+
+    // Skip calculated and handler props (incompatible with Figma)
+    if (match.pattern?.isCalculated || match.pattern?.isHandler) {
+      warnings.push({
+        type: 'prop_mismatch',
+        message: `${match.reactProp}: ${match.pattern.reason} - skipping Figma mapping`,
+        severity: 'info',
+      });
+      continue;
+    }
+
+    if (match.figmaProp && match.figmaType && match.confidence >= 0.6) {
+      // Good match found
+      const figmaPropDef = figmaSchema.properties[match.figmaProp];
+      const recommendedType = getRecommendedTypeForFigma(match.figmaType);
+      const base = makePropDef('string');
+
+      // Build PropDef based on type
+      if (recommendedType === 'boolean') {
+        propDef = {
+          ...base,
+          reactProp: match.reactProp,
+          figmaProp: match.figmaProp,
+          type: 'boolean',
+          boolMode: 'simple' as BooleanMode,
+          boolChildLayer: '',
+          boolTrueValue: '',
+          boolFalseValue: '',
+        };
+      } else if (recommendedType === 'enum') {
+        propDef = {
+          ...base,
+          reactProp: match.reactProp,
+          figmaProp: match.figmaProp,
+          type: 'enum',
+          enumOptions:
+            match.figmaType === 'VARIANT' && figmaPropDef.variantOptions
+              ? generateEnumOptionsFromVariant(figmaPropDef)
+              : [makeEnumOption()],
+        };
+      } else if (recommendedType === 'instance') {
+        propDef = {
+          ...base,
+          reactProp: match.reactProp,
+          figmaProp: match.figmaProp,
+          type: 'instance',
+        };
+      } else if (recommendedType === 'number') {
+        propDef = {
+          ...base,
+          reactProp: match.reactProp,
+          figmaProp: match.figmaProp,
+          type: 'number',
+        };
+      } else {
+        // Default to string
+        propDef = {
+          ...base,
+          reactProp: match.reactProp,
+          figmaProp: match.figmaProp,
+          type: 'string',
+        };
+      }
+
+      // Add warnings for low confidence or type mismatches
+      if (match.confidence < 0.85) {
+        warnings.push({
+          type: 'prop_mismatch',
+          message: `${match.reactProp}: Low confidence match (${Math.round(match.confidence * 100)}%)`,
+          severity: 'warning',
+        });
+      }
+
+      if (!match.typeMatch) {
+        warnings.push({
+          type: 'type_mismatch',
+          message: `${match.reactProp}: Type mismatch - Figma ${match.figmaType} ↔ React ${match.reactType}`,
+          severity: 'warning',
+        });
+      }
+
+      if (match.pattern?.isOptional && !match.pattern.hasDefault) {
+        warnings.push({
+          type: 'prop_mismatch',
+          message: `${match.reactProp}: Optional without default may need fallback handling`,
+          severity: 'info',
+        });
+      }
+    } else {
+      // No good match - create basic prop without Figma mapping
+      const base = makePropDef('string');
+      propDef = {
+        ...base,
+        reactProp: match.reactProp,
+        figmaProp: '',
+        type: 'string',
+      };
+
+      warnings.push({
+        type: 'prop_mismatch',
+        message: `${match.reactProp}: No matching Figma property found`,
+        severity: 'warning',
+      });
+    }
+
+    enhancedProps.push(propDef);
+  }
+
+  // Warn about unmapped Figma props
+  if (matchingReport.unmappedFigmaProps.length > 0) {
+    warnings.push({
+      type: 'prop_mismatch',
+      message: `${matchingReport.unmappedFigmaProps.length} Figma properties not found in React: ${matchingReport.unmappedFigmaProps.map(p => p.name).join(', ')}`,
+      severity: 'info',
+    });
+  }
+
+  const enhancedDef: ComponentDefinition = {
+    ...basicDef,
+    props: enhancedProps,
+  };
+
+  return {
+    definition: enhancedDef,
+    warnings,
+    matchResults: matchingReport.matches,
+    figmaSchema,
+    overallConfidence: matchingReport.overallConfidence,
+  };
+}
+
+/**
+ * Parse TypeScript props with JSDoc comments for semantic analysis.
+ */
+function parseTSPropsWithJSDoc(
+  source: string,
+  propsBody: string
+): Array<{ name: string; typeStr: string; jsDoc?: string }> {
+  const props: Array<{ name: string; typeStr: string; jsDoc?: string }> = [];
+  const lines = propsBody.split('\n');
+  let currentJSDoc = '';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    // Capture JSDoc comments
+    if (line.startsWith('/**') || line.startsWith('/*')) {
+      currentJSDoc = line;
+      continue;
+    }
+    if (currentJSDoc && (line.startsWith('*') || line.includes('*/'))) {
+      currentJSDoc += ' ' + line;
+      if (line.includes('*/')) {
+        // JSDoc complete, next line should be the prop
+      } else {
+        continue;
+      }
+    }
+
+    // Parse prop definition
+    const propMatch = line.match(/^([a-zA-Z_$][\w$]*)\??\s*:\s*(.+?)[;,]?$/);
+    if (propMatch) {
+      const [, name, typeStr] = propMatch;
+      props.push({
+        name: name.trim(),
+        typeStr: typeStr.trim(),
+        jsDoc: currentJSDoc || undefined,
+      });
+      currentJSDoc = '';
+    }
+  }
+
+  return props;
+}
+
+/**
+ * Get recommended PropDef type for a Figma property type.
+ */
+function getRecommendedTypeForFigma(figmaType: string): PropDef['type'] {
+  switch (figmaType) {
+    case 'BOOLEAN':
+      return 'boolean';
+    case 'TEXT':
+      return 'string';
+    case 'INSTANCE_SWAP':
+      return 'instance';
+    case 'VARIANT':
+      return 'enum';
+    default:
+      return 'string';
+  }
 }
