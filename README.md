@@ -1,2 +1,2 @@
 # code-connect-builder
-Create, import, and export Code Connect files.
+Create, connect, and export Code Connect files.
