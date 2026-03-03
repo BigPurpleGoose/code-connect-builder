@@ -136,7 +136,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
             }
           }}
           placeholder="https://www.figma.com/design/..."
-          className={`flex h-9 w-full rounded-md border bg-white px-3 text-sm transition-colors font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400 ${
+          className={`flex h-9 w-full rounded-md border bg-white px-3 text-sm transition-colors font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400 ${
             defErrors.figmaUrl ? "border-red-300" : "border-slate-300"
           }`}
         />

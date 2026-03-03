@@ -29,9 +29,19 @@ import type { ComponentDefinition } from "@/types/connection";
 import {
   parseFigmaConnectFile,
   parseReactComponentFile,
+  parseReactComponentFileWithFigma,
+  parseReactComponentFileWithManualFigma,
   getDefinitionWarnings,
+  type EnhancedParseResult,
 } from "@/utils/importParser";
 import { useConnection } from "@/contexts/ConnectionContext";
+import { isFigmaUrl } from "@/utils/figmaApi";
+import { getConfidenceLabel, getConfidenceColor } from "@/utils/propMatcher";
+import {
+  ManualFigmaPropsInput,
+  type ManualFigmaProperty,
+} from "./ManualFigmaPropsInput";
+import { PropSuggestionRow } from "./PropSuggestionRow";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,6 +51,7 @@ interface ParsedFile {
   filename: string;
   definitions: ComponentDefinition[];
   rawError?: string;
+  enhancedResult?: EnhancedParseResult;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -136,35 +147,120 @@ function DropZone({
   );
 }
 
-function DefPreviewRow({ def }: { def: ComponentDefinition }) {
-  const warnings = getDefinitionWarnings(def);
+function DefPreviewRow({
+  def,
+  enhancedResult,
+}: {
+  def: ComponentDefinition;
+  enhancedResult?: EnhancedParseResult;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const warnings = enhancedResult?.warnings || getDefinitionWarnings(def);
+  const hasErrors = warnings.some((w) => w.severity === "error");
+  const hasWarnings = warnings.some(
+    (w) => w.severity === "warning" || !w.severity,
+  );
+  const hasMatchResults =
+    enhancedResult?.matchResults && enhancedResult.matchResults.length > 0;
+
   return (
-    <div className="flex items-start gap-3 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-3">
-      <div className="mt-0.5 flex-shrink-0">
-        {warnings.length === 0 ? (
-          <CheckCircle2 size={16} className="text-emerald-500" />
-        ) : (
-          <AlertTriangle size={16} className="text-amber-500" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 font-mono truncate">
-          {def.name}
-        </p>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-          {def.props.length} prop{def.props.length !== 1 ? "s" : ""}
-          {def.figmaUrl ? "" : " · ⚠ no Figma URL"}
-        </p>
-        {warnings.map((w, i) => (
-          <p
-            key={i}
-            className="text-xs text-amber-600 dark:text-amber-400 mt-1"
-          >
-            {w.message}
+    <div className="rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+      {/* Header - clickable to expand */}
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-start gap-3 p-3 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
+      >
+        <div className="mt-0.5 flex-shrink-0">
+          {hasErrors ? (
+            <AlertTriangle size={16} className="text-red-500" />
+          ) : hasWarnings ? (
+            <AlertTriangle size={16} className="text-amber-500" />
+          ) : (
+            <CheckCircle2 size={16} className="text-emerald-500" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 font-mono truncate">
+              {def.name}
+            </p>
+            {enhancedResult?.overallConfidence !== undefined && (
+              <span
+                className={`text-[10px] font-medium ${getConfidenceColor(enhancedResult.overallConfidence)}`}
+              >
+                {getConfidenceLabel(enhancedResult.overallConfidence)}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            {def.props.length} prop{def.props.length !== 1 ? "s" : ""}
+            {hasMatchResults &&
+              ` · ${enhancedResult.matchResults?.length || 0} matches`}
           </p>
-        ))}
-      </div>
-      <ChevronRight size={14} className="mt-1 flex-shrink-0 text-zinc-400" />
+          {!isExpanded &&
+            warnings.slice(0, 2).map((w, i) => (
+              <p
+                key={i}
+                className={`text-xs mt-1 ${
+                  w.severity === "error"
+                    ? "text-red-600 dark:text-red-400"
+                    : w.severity === "warning"
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-blue-600 dark:text-blue-400"
+                }`}
+              >
+                {w.message}
+              </p>
+            ))}
+          {!isExpanded && warnings.length > 2 && (
+            <p className="text-xs text-zinc-400 mt-1 italic">
+              +{warnings.length - 2} more
+            </p>
+          )}
+        </div>
+        <ChevronRight
+          size={14}
+          className={`mt-1 flex-shrink-0 text-zinc-400 transition-transform ${
+            isExpanded ? "rotate-90" : ""
+          }`}
+        />
+      </button>
+
+      {/* Expanded Content - Prop-level suggestions */}
+      {isExpanded && hasMatchResults && (
+        <div className="border-t border-zinc-200 dark:border-zinc-700 p-3 space-y-2 bg-zinc-50 dark:bg-zinc-900/50">
+          <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+            Property Matching Details
+          </p>
+          <div className="space-y-2">
+            {enhancedResult.matchResults?.map((match, idx) => (
+              <PropSuggestionRow key={idx} match={match} />
+            ))}
+          </div>
+          {warnings.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700 space-y-1">
+              <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+                All Warnings
+              </p>
+              {warnings.map((w, i) => (
+                <p
+                  key={i}
+                  className={`text-xs ${
+                    w.severity === "error"
+                      ? "text-red-600 dark:text-red-400"
+                      : w.severity === "warning"
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-blue-600 dark:text-blue-400"
+                  }`}
+                >
+                  {w.message}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -182,7 +278,11 @@ function FilePreviewSection({ file }: { file: ParsedFile }) {
       ) : (
         <div className="space-y-2">
           {file.definitions.map((def) => (
-            <DefPreviewRow key={def.id} def={def} />
+            <DefPreviewRow
+              key={def.id}
+              def={def}
+              enhancedResult={file.enhancedResult}
+            />
           ))}
           {file.definitions.length === 0 && (
             <p className="text-xs text-zinc-400 italic">
@@ -203,6 +303,11 @@ export function ImportModal() {
   const [activeTab, setActiveTab] = useState<TabId>("connect");
   const [parsedFiles, setParsedFiles] = useState<ParsedFile[]>([]);
   const [replaceConfirmOpen, setReplaceConfirmOpen] = useState(false);
+  const [figmaUrl, setFigmaUrl] = useState("");
+  const [manualFigmaProps, setManualFigmaProps] = useState<
+    ManualFigmaProperty[]
+  >([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const allDefs = parsedFiles.flatMap((f) => f.definitions);
 
@@ -254,22 +359,57 @@ export function ImportModal() {
 
   const handleReactFiles = useCallback(
     async (files: File[]) => {
-      const loaded = await readFiles(files);
-      const results: ParsedFile[] = loaded.map(({ name, content }) => {
-        try {
-          const def = parseReactComponentFile(content, name);
-          return { filename: name, definitions: [def] };
-        } catch (e: unknown) {
-          return {
-            filename: name,
-            definitions: [],
-            rawError: e instanceof Error ? e.message : String(e),
-          };
-        }
-      });
-      setParsedFiles((prev) => [...prev, ...results]);
+      setIsProcessing(true);
+      try {
+        const loaded = await readFiles(files);
+        const results: ParsedFile[] = await Promise.all(
+          loaded.map(async ({ name, content }) => {
+            try {
+              // Use manual Figma props if provided
+              if (manualFigmaProps.length > 0) {
+                const enhancedResult =
+                  await parseReactComponentFileWithManualFigma(
+                    content,
+                    name,
+                    manualFigmaProps,
+                  );
+                return {
+                  filename: name,
+                  definitions: [enhancedResult.definition],
+                  enhancedResult,
+                };
+              } else if (figmaUrl.trim() && isFigmaUrl(figmaUrl)) {
+                // Fall back to Figma URL if provided (legacy workflow)
+                const enhancedResult = await parseReactComponentFileWithFigma(
+                  content,
+                  name,
+                  figmaUrl,
+                );
+                return {
+                  filename: name,
+                  definitions: [enhancedResult.definition],
+                  enhancedResult,
+                };
+              } else {
+                // Basic parser without Figma integration
+                const def = parseReactComponentFile(content, name);
+                return { filename: name, definitions: [def] };
+              }
+            } catch (e: unknown) {
+              return {
+                filename: name,
+                definitions: [],
+                rawError: e instanceof Error ? e.message : String(e),
+              };
+            }
+          }),
+        );
+        setParsedFiles((prev) => [...prev, ...results]);
+      } finally {
+        setIsProcessing(false);
+      }
     },
-    [readFiles],
+    [readFiles, figmaUrl, manualFigmaProps],
   );
 
   // ── Actions ──
@@ -354,6 +494,43 @@ export function ImportModal() {
 
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
+              {/* React Component Tab: Manual Figma Props Input */}
+              {activeTab === "react" && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    Define Figma Component Properties
+                  </label>
+                  <ManualFigmaPropsInput
+                    properties={manualFigmaProps}
+                    onChange={setManualFigmaProps}
+                  />
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Add properties manually to enable intelligent prop matching
+                    without needing Figma API access
+                  </p>
+                </div>
+              )}
+
+              {/* Legacy Figma URL (optional fallback) */}
+              {activeTab === "react" && manualFigmaProps.length === 0 && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    Or provide Figma URL (legacy)
+                  </label>
+                  <input
+                    type="text"
+                    value={figmaUrl}
+                    onChange={(e) => setFigmaUrl(e.target.value)}
+                    placeholder="https://www.figma.com/design/...?node-id=123-456"
+                    className="w-full px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                  />
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Provide a Figma URL to fetch properties automatically
+                    (requires API token)
+                  </p>
+                </div>
+              )}
+
               {/* Drop zone */}
               {activeTab === "connect" ? (
                 <DropZone
@@ -378,17 +555,29 @@ export function ImportModal() {
                 </DropZone>
               ) : (
                 <DropZone accept=".tsx,.ts" multiple onFiles={handleReactFiles}>
-                  <Upload
-                    size={28}
-                    className="text-zinc-400 dark:text-zinc-500"
-                  />
-                  <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                    Drop React component files
-                  </p>
-                  <p className="text-xs text-zinc-400">
-                    Props interfaces are extracted automatically · paste the
-                    Figma URL after import
-                  </p>
+                  {isProcessing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-blue-500" />
+                      <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                        Processing with Figma integration...
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload
+                        size={28}
+                        className="text-zinc-400 dark:text-zinc-500"
+                      />
+                      <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                        Drop React component files
+                      </p>
+                      <p className="text-xs text-zinc-400">
+                        {figmaUrl.trim()
+                          ? "Props will be matched to Figma properties"
+                          : "Props interfaces are extracted automatically"}
+                      </p>
+                    </>
+                  )}
                 </DropZone>
               )}
 
