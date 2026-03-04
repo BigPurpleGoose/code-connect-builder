@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import type { ComponentDefinition, PropDef } from "@/types/connection";
 import {
   makeDefinition,
@@ -43,11 +50,12 @@ export function ConnectionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const initial = makeDefinition(0);
+  const defaultDef = makeDefinition(0);
+
   const [definitions, setDefinitions] = useState<ComponentDefinition[]>([
-    initial,
+    defaultDef,
   ]);
-  const [activeDefId, setActiveDefId] = useState<string>(initial.id);
+  const [activeDefId, setActiveDefId] = useState<string>(defaultDef.id);
 
   const activeDef =
     definitions.find((d) => d.id === activeDefId) ?? definitions[0];

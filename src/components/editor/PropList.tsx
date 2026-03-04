@@ -13,7 +13,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, List } from "lucide-react";
 import { useConnection } from "@/contexts/ConnectionContext";
 import { PropCard } from "./PropCard";
 import { Button } from "@/components/ui/Button";
@@ -67,9 +67,8 @@ export function PropList({ validationMap }: PropListProps) {
       {/* Section header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-slate-800">
-            Mapped Properties
-          </h2>
+          <List className="h-4 w-4 text-neutral-400" />
+          <h2 className="text-sm font-bold text-neutral-700">Props</h2>
           <Badge>{activeDef.props.length}</Badge>
         </div>
         <AddPropMenu onAdd={addProp} />
@@ -77,13 +76,13 @@ export function PropList({ validationMap }: PropListProps) {
 
       {/* Empty state */}
       {activeDef.props.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-12 text-center">
-          <p className="text-sm font-medium text-slate-400">
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-12 text-center">
+          <List className="h-8 w-8 text-neutral-300 mb-3" />
+          <p className="text-sm font-medium text-neutral-400">
             No properties mapped yet
           </p>
-          <p className="mt-1 text-xs text-slate-400">
-            Click "Add Prop" above to start connecting Figma properties to React
-            props.
+          <p className="mt-1 text-xs text-neutral-400">
+            Click "Add Prop" above to connect Figma properties
           </p>
         </div>
       )}
@@ -130,20 +129,22 @@ function AddPropMenu({ onAdd }: { onAdd: (type: PropType) => void }) {
         <Popover.Content
           align="end"
           sideOffset={6}
-          className="z-40 w-52 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl animate-fade-in"
+          className="z-40 w-52 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-xl animate-fade-in"
         >
           <div className="p-1.5">
-            <p className="px-2 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <p className="px-2 py-1.5 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
               Prop Type
             </p>
             {ADD_OPTIONS.map((opt) => (
               <Popover.Close asChild key={opt.type}>
                 <button
                   onClick={() => onAdd(opt.type)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm text-neutral-700 hover:bg-neutral-100 transition-colors"
                 >
                   <span className="font-medium">{opt.label}</span>
-                  <span className="text-[10px] text-slate-400">{opt.hint}</span>
+                  <span className="text-[10px] text-neutral-400">
+                    {opt.hint}
+                  </span>
                 </button>
               </Popover.Close>
             ))}

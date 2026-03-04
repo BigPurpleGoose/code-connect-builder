@@ -5,6 +5,7 @@ import { Save, Trash2, FolderOpen, PlusCircle, Check, X } from "lucide-react";
 import { useTemplates } from "@/contexts/TemplateContext";
 import { useConnection } from "@/contexts/ConnectionContext";
 import { Button } from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/components/ui/cn";
 import type { Template } from "@/types/connection";
 
@@ -51,29 +52,31 @@ export function TemplateManager() {
 
   return (
     <Popover.Root>
-      <Popover.Trigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-colors">
-          <Save className="h-3.5 w-3.5" />
-          Templates
-          {templates.length > 0 && (
-            <span className="ml-0.5 rounded-full bg-slate-200 px-1.5 py-px text-[10px] font-bold text-slate-600">
-              {templates.length}
-            </span>
-          )}
-        </button>
-      </Popover.Trigger>
+      <Tooltip content="Templates">
+        <Popover.Trigger asChild>
+          <button className="inline-flex items-center justify-center gap-1.5 rounded-md p-2 text-neutral-600 border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-300 transition-colors relative">
+            <Save className="h-4 w-4" />
+            {templates.length > 0 && (
+              <span className="absolute -top-1 -right-1 rounded-full bg-primary-500 px-1.5 py-px text-[9px] font-bold text-white min-w-[18px] text-center">
+                {templates.length}
+              </span>
+            )}
+          </button>
+        </Popover.Trigger>
+      </Tooltip>
 
       <Popover.Portal>
         <Popover.Content
           align="end"
           sideOffset={8}
-          className="z-40 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl animate-fade-in"
+          className="z-40 w-72 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl animate-fade-in"
         >
           {/* Save section */}
-          <div className="border-b border-slate-100 p-3">
+          <div className="border-b border-neutral-100 p-3">
             {showSaveInput ? (
               <div className="flex items-center gap-2">
                 <input
+                  id="template-save-name"
                   type="text"
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
@@ -83,18 +86,18 @@ export function TemplateManager() {
                   }}
                   placeholder="Template name..."
                   autoFocus
-                  className="flex-1 h-8 rounded-md border border-slate-300 px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  className="flex-1 h-8 rounded-md border border-neutral-300 px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
                 />
                 <button
                   onClick={handleSave}
                   disabled={!saveName.trim()}
-                  className="p-1.5 rounded-md bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-700"
+                  className="p-1.5 rounded-md bg-primary-600 text-white disabled:opacity-40 hover:bg-primary-700"
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => setShowSaveInput(false)}
-                  className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100"
+                  className="p-1.5 rounded-md text-neutral-500 hover:bg-neutral-100"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -102,7 +105,7 @@ export function TemplateManager() {
             ) : (
               <button
                 onClick={() => setShowSaveInput(true)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors font-medium"
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-primary-600 hover:bg-primary-50 transition-colors font-medium"
               >
                 <PlusCircle className="h-4 w-4" />
                 Save current setup as template
@@ -113,7 +116,7 @@ export function TemplateManager() {
           {/* Template list */}
           <div className="max-h-64 overflow-y-auto p-1.5">
             {templates.length === 0 && (
-              <p className="px-3 py-4 text-center text-xs text-slate-400 italic">
+              <p className="px-3 py-4 text-center text-xs text-neutral-400 italic">
                 No saved templates yet.
               </p>
             )}
@@ -170,12 +173,13 @@ function TemplateRow({
   return (
     <div
       className={cn(
-        "group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-slate-50 transition-colors",
+        "group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-neutral-50 transition-colors",
       )}
     >
       {isRenaming ? (
         <div className="flex flex-1 items-center gap-1.5">
           <input
+            id={`template-rename-${template.id}`}
             type="text"
             value={renameValue}
             onChange={(e) => onRenameChange(e.target.value)}
@@ -184,17 +188,17 @@ function TemplateRow({
               if (e.key === "Escape") onRenameCancel();
             }}
             autoFocus
-            className="flex-1 h-7 rounded border border-blue-400 px-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex-1 h-7 rounded border border-primary-400 px-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
           <button
             onClick={onRenameSubmit}
-            className="text-blue-600 hover:text-blue-800"
+            className="text-primary-600 hover:text-primary-800"
           >
             <Check className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onRenameCancel}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-neutral-400 hover:text-neutral-600"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -203,10 +207,10 @@ function TemplateRow({
         <>
           <Popover.Close asChild>
             <button onClick={onLoad} className="flex-1 text-left">
-              <p className="text-sm font-medium text-slate-700 truncate">
+              <p className="text-sm font-medium text-neutral-700 truncate">
                 {template.name}
               </p>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-neutral-400">
                 {template.definitions.length} component
                 {template.definitions.length !== 1 ? "s" : ""} ·{" "}
                 {formatDate(template.createdAt)}
@@ -217,7 +221,7 @@ function TemplateRow({
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={onRenameStart}
-              className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+              className="rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-600 transition-colors"
               title="Rename"
             >
               <FolderOpen className="h-3 w-3" />
@@ -241,19 +245,19 @@ function DeleteTemplateButton({
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>
         <button
-          className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+          className="rounded p-1 text-neutral-400 hover:bg-danger-50 hover:text-danger-500 transition-colors"
           title="Delete template"
         >
           <Trash2 className="h-3 w-3" />
         </button>
       </AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[60] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl radix-content">
-          <AlertDialog.Title className="text-base font-bold text-slate-900 mb-2">
+        <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-neutral-900/50 backdrop-blur-sm" />
+        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[60] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-6 shadow-xl radix-content">
+          <AlertDialog.Title className="text-base font-bold text-neutral-900 mb-2">
             Delete template?
           </AlertDialog.Title>
-          <AlertDialog.Description className="text-sm text-slate-500 mb-5">
+          <AlertDialog.Description className="text-sm text-neutral-500 mb-5">
             "<strong>{name}</strong>" will be permanently deleted. This cannot
             be undone.
           </AlertDialog.Description>

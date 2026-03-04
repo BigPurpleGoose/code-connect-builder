@@ -27,12 +27,12 @@ export function Tooltip({
             align={align}
             sideOffset={6}
             className={cn(
-              "z-50 max-w-xs rounded-lg bg-slate-900 px-3 py-2 text-xs text-slate-100 shadow-xl",
+              "z-50 max-w-xs rounded-lg bg-neutral-900 px-3 py-2 text-xs text-neutral-100 shadow-xl",
               "animate-fade-in leading-relaxed",
             )}
           >
             {content}
-            <RadixTooltip.Arrow className="fill-slate-900" />
+            <RadixTooltip.Arrow className="fill-neutral-900" />
           </RadixTooltip.Content>
         </RadixTooltip.Portal>
       </RadixTooltip.Root>
@@ -51,7 +51,7 @@ export function Badge({
     <span
       className={cn(
         "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold",
-        "bg-slate-100 text-slate-500",
+        "bg-neutral-100 text-neutral-500",
         className,
       )}
     >

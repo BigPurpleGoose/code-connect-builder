@@ -53,10 +53,10 @@ export function BooleanEditor({
             <button
               className={cn(
                 "flex flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-all",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
                 prop.boolMode === mode.value
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+                  ? "border-primary-500 bg-primary-50 text-primary-700"
+                  : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50",
               )}
             >
               <span className="text-xs font-semibold leading-none">
@@ -72,9 +72,9 @@ export function BooleanEditor({
 
       {/* Simple: just a description */}
       {prop.boolMode === "simple" && (
-        <p className="text-[11px] text-slate-400 italic">
+        <p className="text-[11px] text-neutral-400 italic">
           Outputs:{" "}
-          <code className="font-mono text-slate-600">
+          <code className="font-mono text-neutral-600">
             figma.boolean(&#34;{prop.figmaProp || "propName"}&#34;)
           </code>
           <br />
@@ -99,24 +99,32 @@ export function BooleanEditor({
       {/* Visibility: layer name input */}
       {prop.boolMode === "visibility" && (
         <div className="space-y-2">
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+          <label
+            htmlFor="bool-child-layer"
+            className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block"
+          >
             Canvas Layer Name to Show
           </label>
           <input
+            id="bool-child-layer"
             type="text"
-            value={prop.boolChildLayer}
+            value={prop.boolChildLayer || ""}
             onChange={(e) => update({ boolChildLayer: e.target.value })}
             placeholder="e.g. Icon Layer, Start Icon"
             className={cn(
               "flex h-9 w-full rounded-md border bg-white px-3 text-sm transition-colors",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500",
-              errors.boolChildLayer ? "border-red-300" : "border-slate-300",
+              "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
+              errors.boolChildLayer
+                ? "border-danger-300"
+                : "border-neutral-300",
             )}
           />
           {errors.boolChildLayer && (
-            <p className="text-[11px] text-red-500">{errors.boolChildLayer}</p>
+            <p className="text-[11px] text-danger-500">
+              {errors.boolChildLayer}
+            </p>
           )}
-          <p className="text-[10px] text-slate-400 leading-relaxed">
+          <p className="text-[10px] text-neutral-400 leading-relaxed">
             When the Figma boolean is <strong>true</strong>, this layer is
             passed as{" "}
             <code className="font-mono">
@@ -133,30 +141,38 @@ export function BooleanEditor({
       {prop.boolMode === "complex" && (
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+            <label
+              htmlFor="bool-true-value"
+              className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block"
+            >
               When True
             </label>
             <input
+              id="bool-true-value"
               type="text"
-              value={prop.boolTrueValue}
+              value={prop.boolTrueValue || ""}
               onChange={(e) => update({ boolTrueValue: e.target.value })}
               placeholder={`e.g. "large" or <Icon />`}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+              className="flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+            <label
+              htmlFor="bool-false-value"
+              className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block"
+            >
               When False
             </label>
             <input
+              id="bool-false-value"
               type="text"
-              value={prop.boolFalseValue}
+              value={prop.boolFalseValue || ""}
               onChange={(e) => update({ boolFalseValue: e.target.value })}
               placeholder={`e.g. "small" or undefined`}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+              className="flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
             />
           </div>
-          <p className="col-span-2 text-[10px] text-slate-400">
+          <p className="col-span-2 text-[10px] text-neutral-400">
             Enter raw JavaScript values. Use{" "}
             <code className="font-mono">undefined</code> to make the prop
             disappear, <code className="font-mono">"string"</code> for a string,

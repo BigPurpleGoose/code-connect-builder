@@ -47,7 +47,7 @@ export function NestedPropsBuilder({
 
   return (
     <div className="space-y-3">
-      <p className="text-[11px] text-slate-500 leading-relaxed">
+      <p className="text-[11px] text-neutral-500 leading-relaxed">
         Define the props that exist on the{" "}
         <strong>{prop.figmaProp || "sub-component"}</strong> Figma layer. These
         will be aggregated into the parent component's{" "}
@@ -58,13 +58,13 @@ export function NestedPropsBuilder({
       {/* Header row */}
       {prop.nestedProps.length > 0 && (
         <div className="grid grid-cols-[1fr_1fr_120px_auto] gap-2">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
             React Prop
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
             Figma Prop
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
             Type
           </span>
           <span className="w-6" />
@@ -77,22 +77,24 @@ export function NestedPropsBuilder({
           <div key={np.id} className="space-y-1.5">
             <div className="grid grid-cols-[1fr_1fr_120px_auto] gap-2 items-end">
               <input
+                id={`nested-react-${np.id}`}
                 type="text"
-                value={np.reactProp}
+                value={np.reactProp || ""}
                 onChange={(e) =>
                   updateNestedProp(np.id, { reactProp: e.target.value })
                 }
                 placeholder="reactProp"
-                className="h-8 rounded-md border border-slate-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400"
+                className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
               />
               <input
+                id={`nested-figma-${np.id}`}
                 type="text"
-                value={np.figmaProp}
+                value={np.figmaProp || ""}
                 onChange={(e) =>
                   updateNestedProp(np.id, { figmaProp: e.target.value })
                 }
                 placeholder="Figma Prop"
-                className="h-8 rounded-md border border-slate-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400"
+                className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
               />
               <select
                 value={np.type}
@@ -101,7 +103,7 @@ export function NestedPropsBuilder({
                     type: e.target.value as NestedPropDef["type"],
                   })
                 }
-                className="h-8 appearance-none rounded-md border border-slate-300 bg-white px-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 cursor-pointer"
+                className="h-8 appearance-none rounded-md border border-neutral-300 bg-white px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 cursor-pointer"
               >
                 {NESTED_TYPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -112,7 +114,7 @@ export function NestedPropsBuilder({
               <button
                 type="button"
                 onClick={() => removeNested(np.id)}
-                className="text-slate-400 hover:text-red-500 transition-colors"
+                className="text-neutral-400 hover:text-danger-500 transition-colors"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -133,9 +135,9 @@ export function NestedPropsBuilder({
                       onChange={() =>
                         updateNestedProp(np.id, { boolMode: mode })
                       }
-                      className="accent-blue-600"
+                      className="accent-primary-600"
                     />
-                    <span className="text-[10px] text-slate-600 capitalize">
+                    <span className="text-[10px] text-neutral-600 capitalize">
                       {mode}
                     </span>
                   </label>
@@ -143,6 +145,7 @@ export function NestedPropsBuilder({
                 {np.boolMode === "visibility" && (
                   <div className="col-span-3 mt-1">
                     <input
+                      id={`nested-bool-layer-${np.id}`}
                       type="text"
                       value={np.boolChildLayer ?? ""}
                       onChange={(e) =>
@@ -151,7 +154,7 @@ export function NestedPropsBuilder({
                         })
                       }
                       placeholder="Layer name to show"
-                      className="h-7 w-full rounded-md border border-slate-300 bg-white px-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="h-7 w-full rounded-md border border-neutral-300 bg-white px-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-primary-500"
                     />
                   </div>
                 )}
@@ -162,7 +165,7 @@ export function NestedPropsBuilder({
       </div>
 
       {prop.nestedProps.length === 0 && (
-        <p className="text-[11px] text-slate-400 italic">
+        <p className="text-[11px] text-neutral-400 italic">
           No nested props added yet. Add one below to define the sub-component
           mapping.
         </p>
@@ -171,7 +174,7 @@ export function NestedPropsBuilder({
       <button
         type="button"
         onClick={addNested}
-        className="flex items-center gap-1.5 text-[11px] text-blue-600 hover:text-blue-700 font-medium transition-colors"
+        className="flex items-center gap-1.5 text-[11px] text-primary-600 hover:text-primary-700 font-medium transition-colors"
       >
         <Plus className="h-3.5 w-3.5" /> Add Nested Prop
       </button>

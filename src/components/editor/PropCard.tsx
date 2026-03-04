@@ -127,9 +127,9 @@ export function PropCard({
       className={cn(
         "group relative rounded-xl border bg-white shadow-sm transition-all",
         isDragging
-          ? "shadow-lg ring-2 ring-blue-500/20"
-          : "hover:shadow-md hover:border-blue-300",
-        hasBlockingErrors ? "border-red-200" : "border-slate-200",
+          ? "shadow-lg ring-2 ring-primary-500/20"
+          : "hover:shadow-md hover:border-primary-300",
+        hasBlockingErrors ? "border-danger-200" : "border-neutral-200",
       )}
     >
       {/* Card header */}
@@ -138,14 +138,14 @@ export function PropCard({
         <button
           {...attributes}
           {...listeners}
-          className="mt-1 cursor-grab text-slate-300 hover:text-slate-500 active:cursor-grabbing touch-none"
+          className="mt-1 cursor-grab text-neutral-300 hover:text-neutral-500 active:cursor-grabbing touch-none"
           aria-label="Drag to reorder"
         >
           <GripVertical className="h-4 w-4" />
         </button>
 
         {/* Index badge */}
-        <span className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-400">
+        <span className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-[10px] font-bold text-neutral-400">
           {index + 1}
         </span>
 
@@ -191,7 +191,7 @@ export function PropCard({
         <button
           type="button"
           onClick={onRemove}
-          className="mt-0.5 rounded p-1.5 text-slate-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+          className="mt-0.5 rounded p-1.5 text-neutral-300 opacity-0 transition-all hover:bg-danger-50 hover:text-danger-500 group-hover:opacity-100"
           aria-label="Remove property"
         >
           <Trash2 className="h-4 w-4" />
@@ -199,7 +199,7 @@ export function PropCard({
       </div>
 
       {/* Type-specific editor */}
-      <div className="border-t border-slate-100 bg-slate-50/60 px-4 pb-4 pt-3 rounded-b-xl">
+      <div className="border-t border-neutral-100 bg-neutral-50/60 px-4 pb-4 pt-3 rounded-b-xl">
         {renderEditor()}
       </div>
     </div>

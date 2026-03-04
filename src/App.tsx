@@ -19,13 +19,13 @@ export default function App() {
           <ValidationBar />
 
           {/* Mobile tab bar */}
-          <div className="flex shrink-0 border-b border-slate-200 bg-white lg:hidden">
+          <div className="flex shrink-0 border-b border-neutral-200 bg-white lg:hidden">
             <button
               onClick={() => setMobileView("editor")}
               className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors border-b-2 ${
                 mobileView === "editor"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-slate-500"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-neutral-500"
               }`}
             >
               <Pencil className="h-3.5 w-3.5" /> Editor
@@ -34,8 +34,8 @@ export default function App() {
               onClick={() => setMobileView("output")}
               className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors border-b-2 ${
                 mobileView === "output"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-slate-500"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-neutral-500"
               }`}
             >
               <Code2 className="h-3.5 w-3.5" /> Code Output
@@ -45,7 +45,7 @@ export default function App() {
           <div className="flex flex-1 overflow-hidden">
             {/* Left column: sidebar + editor (hidden on mobile when output is active) */}
             <div
-              className={`flex flex-1 flex-col overflow-hidden border-r border-slate-200 lg:flex lg:flex-row ${
+              className={`flex flex-1 flex-col overflow-hidden border-r border-neutral-200 lg:flex lg:flex-row ${
                 mobileView === "output" ? "hidden" : "flex"
               }`}
             >

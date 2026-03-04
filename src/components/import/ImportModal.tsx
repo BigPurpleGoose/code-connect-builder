@@ -514,10 +514,14 @@ export function ImportModal() {
               {/* Legacy Figma URL (optional fallback) */}
               {activeTab === "react" && manualFigmaProps.length === 0 && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  <label
+                    htmlFor="figma-url-input"
+                    className="block text-xs font-medium text-zinc-700 dark:text-zinc-300"
+                  >
                     Or provide Figma URL (legacy)
                   </label>
                   <input
+                    id="figma-url-input"
                     type="text"
                     value={figmaUrl}
                     onChange={(e) => setFigmaUrl(e.target.value)}

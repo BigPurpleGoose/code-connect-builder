@@ -41,7 +41,7 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
           onClick={toggleWildcard}
           className={cn(
             "relative h-5 w-9 rounded-full transition-colors cursor-pointer",
-            isWildcard ? "bg-blue-500" : "bg-slate-300",
+            isWildcard ? "bg-primary-500" : "bg-neutral-300",
           )}
         >
           <div
@@ -51,7 +51,7 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
             )}
           />
         </div>
-        <span className="text-xs text-slate-600 font-medium">
+        <span className="text-xs text-neutral-600 font-medium">
           Use wildcard (<code className="font-mono">*</code>) — pass all child
           layers
         </span>
@@ -60,23 +60,24 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
       {/* Named layer list */}
       {!isWildcard && (
         <div className="space-y-2">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
             Figma Layer Names
           </p>
           {layers.map((layer, i) => (
             <div key={i} className="flex items-center gap-2">
               <input
+                id={`layer-name-${prop.id}-${i}`}
                 type="text"
-                value={layer}
+                value={layer || ""}
                 onChange={(e) => updateLayer(i, e.target.value)}
                 placeholder={`Layer name ${i + 1}`}
-                className="h-8 flex-1 rounded-md border border-slate-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400"
+                className="h-8 flex-1 rounded-md border border-neutral-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
               />
               <button
                 type="button"
                 onClick={() => removeLayer(i)}
                 disabled={layers.length <= 1}
-                className="text-slate-400 hover:text-red-500 disabled:opacity-30 transition-colors"
+                className="text-neutral-400 hover:text-danger-500 disabled:opacity-30 transition-colors"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -85,14 +86,14 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
           <button
             type="button"
             onClick={addLayer}
-            className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 font-medium"
+            className="flex items-center gap-1 text-[11px] text-primary-600 hover:text-primary-700 font-medium"
           >
             <Plus className="h-3 w-3" /> Add Layer
           </button>
         </div>
       )}
 
-      <p className="text-[10px] text-slate-400 leading-relaxed">
+      <p className="text-[10px] text-neutral-400 leading-relaxed">
         {isWildcard ? (
           <>
             All child layers in the Figma component will be passed through.

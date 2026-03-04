@@ -29,34 +29,39 @@ export function Select({
   error,
 }: SelectProps) {
   const selectedOption = options.find((o) => o.value === value);
+  const selectId = label ? label.toLowerCase().replace(/\s+/g, "-") : undefined;
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       {label && (
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider select-none">
+        <label
+          htmlFor={selectId}
+          className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider select-none"
+        >
           {label}
         </label>
       )}
       <RadixSelect.Root value={value} onValueChange={onValueChange}>
         <RadixSelect.Trigger
+          id={selectId}
           className={cn(
             "flex h-9 w-full items-center justify-between rounded-md border bg-white px-3 py-1 text-sm transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500",
-            "data-[placeholder]:text-slate-400",
-            error ? "border-red-300" : "border-slate-300",
+            "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
+            "data-[placeholder]:text-neutral-400",
+            error ? "border-danger-300" : "border-neutral-300",
           )}
         >
           <RadixSelect.Value placeholder={placeholder ?? "Select..."}>
             {selectedOption?.label}
           </RadixSelect.Value>
           <RadixSelect.Icon>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
+            <ChevronDown className="h-4 w-4 text-neutral-400" />
           </RadixSelect.Icon>
         </RadixSelect.Trigger>
 
         <RadixSelect.Portal>
           <RadixSelect.Content
-            className="z-50 min-w-[8rem] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg animate-fade-in"
+            className="z-50 min-w-[8rem] overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg animate-fade-in"
             position="popper"
             sideOffset={4}
           >
@@ -67,18 +72,18 @@ export function Select({
                   value={opt.value}
                   className={cn(
                     "relative flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm outline-none",
-                    "data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900",
-                    "data-[state=checked]:text-blue-600",
+                    "data-[highlighted]:bg-neutral-100 data-[highlighted]:text-neutral-900",
+                    "data-[state=checked]:text-primary-600",
                   )}
                 >
                   <RadixSelect.ItemText>{opt.label}</RadixSelect.ItemText>
                   {opt.description && (
-                    <span className="ml-2 text-[10px] text-slate-400">
+                    <span className="ml-2 text-[10px] text-neutral-400">
                       {opt.description}
                     </span>
                   )}
                   <RadixSelect.ItemIndicator className="absolute right-2">
-                    <Check className="h-3.5 w-3.5 text-blue-500" />
+                    <Check className="h-3.5 w-3.5 text-primary-500" />
                   </RadixSelect.ItemIndicator>
                 </RadixSelect.Item>
               ))}
@@ -86,7 +91,7 @@ export function Select({
           </RadixSelect.Content>
         </RadixSelect.Portal>
       </RadixSelect.Root>
-      {error && <p className="text-[11px] text-red-500">{error}</p>}
+      {error && <p className="text-[11px] text-danger-500">{error}</p>}
     </div>
   );
 }
