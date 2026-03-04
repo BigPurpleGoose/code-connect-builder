@@ -71,7 +71,7 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
                 value={layer || ""}
                 onChange={(e) => updateLayer(i, e.target.value)}
                 placeholder={`Layer name ${i + 1}`}
-                className="h-8 flex-1 rounded-md border border-neutral-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
+                className="h-8 flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500"
               />
               <button
                 type="button"

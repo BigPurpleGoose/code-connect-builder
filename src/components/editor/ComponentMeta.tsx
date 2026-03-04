@@ -56,8 +56,8 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
     );
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-5 space-y-4">
-      <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+    <div className="rounded-xl border border-neutral-700 bg-neutral-900/60 p-5 space-y-4">
+      <h3 className="text-caption font-bold text-neutral-400 uppercase tracking-wider">
         Component Configuration
       </h3>
 
@@ -86,7 +86,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
             mono
             error={defErrors.importPath}
           />
-          <p className="mt-1 text-[10px] text-neutral-400">
+          <p className="mt-1 text-caption text-neutral-500">
             Where the component is imported from in the output file.
           </p>
         </div>
@@ -97,7 +97,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
         <div className="flex items-center gap-1.5 mb-1.5">
           <label
             htmlFor="figma-url"
-            className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider"
+            className="text-caption font-bold text-neutral-500 uppercase tracking-wider"
           >
             Figma URL or Node ID
           </label>
@@ -119,7 +119,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
           >
             <button
               type="button"
-              className="text-neutral-400 hover:text-primary-500 transition-colors"
+              className="text-neutral-500 hover:text-primary-400 transition-colors"
             >
               <ExternalLink className="h-3.5 w-3.5" />
             </button>
@@ -140,12 +140,12 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
             }
           }}
           placeholder="https://www.figma.com/design/..."
-          className={`flex h-9 w-full rounded-md border bg-white px-3 text-sm transition-colors font-mono focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400 ${
-            defErrors.figmaUrl ? "border-danger-300" : "border-neutral-300"
+          className={`flex h-9 w-full rounded-md border bg-neutral-900 text-neutral-100 px-3 text-sm transition-colors font-mono focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500 ${
+            defErrors.figmaUrl ? "border-danger-600" : "border-neutral-700"
           }`}
         />
         {defErrors.figmaUrl && (
-          <p className="mt-1 text-[11px] text-danger-500">
+          <p className="mt-1 text-body-sm text-danger-400">
             {defErrors.figmaUrl}
           </p>
         )}
@@ -155,7 +155,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
       <div className="space-y-2 pt-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+            <span className="text-caption font-bold text-neutral-400 uppercase tracking-wider">
               Variant Scope
             </span>
             <Tooltip
@@ -223,7 +223,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
                   value={v.key}
                   onChange={(e) => updateVariant(v.id, { key: e.target.value })}
                   placeholder="State"
-                  className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400"
+                  className="h-8 rounded-md border border-neutral-700 bg-neutral-900 text-neutral-100 px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 placeholder:text-neutral-500"
                 />
                 <input
                   id={`variant-value-${v.id}`}
@@ -233,12 +233,12 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
                     updateVariant(v.id, { value: e.target.value })
                   }
                   placeholder="Disabled"
-                  className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400"
+                  className="h-8 rounded-md border border-neutral-700 bg-neutral-900 text-neutral-100 px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 placeholder:text-neutral-500"
                 />
                 <button
                   type="button"
                   onClick={() => removeVariant(v.id)}
-                  className="text-neutral-400 hover:text-danger-500 transition-colors"
+                  className="text-neutral-500 hover:text-danger-400 transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -249,10 +249,10 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
       </div>
 
       {/* ── Dev Mode Links ───────────────────────────────────────────── */}
-      <div className="space-y-2 pt-1 border-t border-neutral-200">
+      <div className="space-y-2 pt-1 border-t border-neutral-700">
         <div className="flex items-center justify-between pt-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+            <span className="text-caption font-bold text-neutral-400 uppercase tracking-wider">
               Dev Mode Links
             </span>
             <Tooltip
@@ -285,7 +285,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
           <button
             type="button"
             onClick={addLink}
-            className="text-[11px] text-primary-600 hover:text-primary-700 font-medium flex items-center gap-0.5"
+            className="text-body-sm text-primary-400 hover:text-primary-300 font-medium flex items-center gap-0.5"
           >
             <Plus className="h-3 w-3" /> Add link
           </button>
@@ -322,7 +322,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
                     updateLink(link.id, { name: e.target.value })
                   }
                   placeholder="Storybook"
-                  className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+                  className="h-8 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
                 />
                 <div className="relative">
                   <Link2 className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-neutral-400 pointer-events-none" />
@@ -335,7 +335,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
                     }
                     placeholder="https://..."
                     className={cn(
-                      "h-8 w-full rounded-md border border-neutral-300 bg-white pl-6 pr-2.5 font-mono text-xs",
+                      "h-8 w-full rounded-md border border-neutral-700 bg-neutral-900 pl-6 pr-2.5 font-mono text-xs text-neutral-100 placeholder-neutral-500",
                       "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
                     )}
                   />

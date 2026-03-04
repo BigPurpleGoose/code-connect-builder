@@ -55,8 +55,8 @@ export function BooleanEditor({
                 "flex flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-all",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
                 prop.boolMode === mode.value
-                  ? "border-primary-500 bg-primary-50 text-primary-700"
-                  : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50",
+                  ? "border-primary-500 bg-primary-900/20 text-primary-300"
+                  : "border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-800",
               )}
             >
               <span className="text-xs font-semibold leading-none">
@@ -112,11 +112,11 @@ export function BooleanEditor({
             onChange={(e) => update({ boolChildLayer: e.target.value })}
             placeholder="e.g. Icon Layer, Start Icon"
             className={cn(
-              "flex h-9 w-full rounded-md border bg-white px-3 text-sm transition-colors",
+              "flex h-9 w-full rounded-md border bg-neutral-900 px-3 text-sm text-neutral-100 transition-colors",
               "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
               errors.boolChildLayer
                 ? "border-danger-300"
-                : "border-neutral-300",
+                : "border-neutral-700",
             )}
           />
           {errors.boolChildLayer && (
@@ -153,7 +153,7 @@ export function BooleanEditor({
               value={prop.boolTrueValue || ""}
               onChange={(e) => update({ boolTrueValue: e.target.value })}
               placeholder={`e.g. "large" or <Icon />`}
-              className="flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+              className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder-neutral-500"
             />
           </div>
           <div className="space-y-1.5">
@@ -169,7 +169,7 @@ export function BooleanEditor({
               value={prop.boolFalseValue || ""}
               onChange={(e) => update({ boolFalseValue: e.target.value })}
               placeholder={`e.g. "small" or undefined`}
-              className="flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+              className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder-neutral-500"
             />
           </div>
           <p className="col-span-2 text-[10px] text-neutral-400">

@@ -20,7 +20,7 @@ export function DocsPanel() {
       <Tooltip content="Documentation">
         <Dialog.Trigger asChild>
           <button
-            className="inline-flex items-center justify-center rounded-md p-2 text-neutral-600 border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
+            className="inline-flex items-center justify-center rounded-md p-2 text-neutral-300 border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 hover:border-neutral-600 transition-colors"
             aria-label="Open documentation"
           >
             <BookOpen className="h-4 w-4" />
@@ -29,27 +29,27 @@ export function DocsPanel() {
       </Tooltip>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-neutral-900/50 backdrop-blur-sm radix-overlay" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-white shadow-2xl sheet-content focus:outline-none">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm radix-overlay" />
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-neutral-900 shadow-2xl sheet-content focus:outline-none">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4 bg-neutral-50">
+          <div className="flex items-center justify-between border-b border-neutral-700 px-6 py-4 bg-neutral-800">
             <div>
-              <Dialog.Title className="text-lg font-bold text-neutral-900">
+              <Dialog.Title className="text-lg font-bold text-neutral-100">
                 Documentation & Reference
               </Dialog.Title>
-              <Dialog.Description className="text-xs text-neutral-500 mt-0.5">
+              <Dialog.Description className="text-xs text-neutral-400 mt-0.5">
                 Code Connect patterns and prop type reference
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
-              <button className="rounded-md p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors">
+              <button className="rounded-md p-2 text-neutral-400 hover:bg-neutral-700 hover:text-neutral-200 transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </Dialog.Close>
           </div>
 
           {/* Nav tabs */}
-          <div className="flex gap-1 border-b border-neutral-200 bg-white px-4 pt-3 overflow-x-auto">
+          <div className="flex gap-1 border-b border-neutral-700 bg-neutral-900 px-4 pt-3 overflow-x-auto">
             {["Guides", "Prop Types"].map((tab, i) => (
               <button
                 key={tab}
@@ -57,8 +57,8 @@ export function DocsPanel() {
                 className={cn(
                   "shrink-0 rounded-t-md px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
                   activeSection === i
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-neutral-500 hover:text-neutral-700",
+                    ? "border-primary-500 text-primary-400"
+                    : "border-transparent text-neutral-400 hover:text-neutral-200",
                 )}
               >
                 {tab}
@@ -72,19 +72,19 @@ export function DocsPanel() {
               <>
                 {REFERENCE_SECTIONS.map((section, si) => (
                   <section key={si}>
-                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4 pb-2 border-b border-neutral-100">
+                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4 pb-2 border-b border-neutral-700">
                       {section.title}
                     </h3>
                     <div className="space-y-3">
                       {section.items.map((item, ii) => (
                         <div
                           key={ii}
-                          className="rounded-lg border border-neutral-100 bg-neutral-50/50 p-4 hover:bg-white hover:border-primary-100 hover:shadow-sm transition-all"
+                          className="rounded-lg border border-neutral-700 bg-neutral-800/50 p-4 hover:bg-neutral-800 hover:border-primary-600/50 hover:shadow-sm transition-all"
                         >
-                          <h4 className="font-mono text-sm font-bold text-primary-600 mb-2">
+                          <h4 className="font-mono text-sm font-bold text-primary-400 mb-2">
                             {item.term}
                           </h4>
-                          <p className="text-sm text-neutral-600 leading-relaxed">
+                          <p className="text-sm text-neutral-300 leading-relaxed">
                             {item.desc}
                           </p>
                           {item.example && (
@@ -107,10 +107,10 @@ export function DocsPanel() {
                 {propTypes.map(([type, doc]) => (
                   <div
                     key={type}
-                    className="rounded-xl border border-neutral-200 overflow-hidden hover:border-primary-200 transition-colors"
+                    className="rounded-xl border border-neutral-700 overflow-hidden hover:border-primary-600/50 transition-colors"
                   >
-                    <div className="flex items-center gap-3 bg-neutral-50 px-4 py-3 border-b border-neutral-200">
-                      <span className="font-mono text-sm font-bold text-primary-600">
+                    <div className="flex items-center gap-3 bg-neutral-800 px-4 py-3 border-b border-neutral-700">
+                      <span className="font-mono text-sm font-bold text-primary-400">
                         {doc.label}
                       </span>
                       <span className="text-xs text-neutral-400 font-mono">

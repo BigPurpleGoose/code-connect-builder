@@ -84,7 +84,7 @@ export function NestedPropsBuilder({
                   updateNestedProp(np.id, { reactProp: e.target.value })
                 }
                 placeholder="reactProp"
-                className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
+                className="h-8 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500"
               />
               <input
                 id={`nested-figma-${np.id}`}
@@ -94,7 +94,7 @@ export function NestedPropsBuilder({
                   updateNestedProp(np.id, { figmaProp: e.target.value })
                 }
                 placeholder="Figma Prop"
-                className="h-8 rounded-md border border-neutral-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
+                className="h-8 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500"
               />
               <select
                 value={np.type}
@@ -103,7 +103,7 @@ export function NestedPropsBuilder({
                     type: e.target.value as NestedPropDef["type"],
                   })
                 }
-                className="h-8 appearance-none rounded-md border border-neutral-300 bg-white px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 cursor-pointer"
+                className="h-8 appearance-none rounded-md border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 cursor-pointer"
               >
                 {NESTED_TYPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -154,7 +154,7 @@ export function NestedPropsBuilder({
                         })
                       }
                       placeholder="Layer name to show"
-                      className="h-7 w-full rounded-md border border-neutral-300 bg-white px-2 text-[11px] focus:outline-none focus:ring-1 focus:ring-primary-500"
+                      className="h-7 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2 text-[11px] text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                     />
                   </div>
                 )}

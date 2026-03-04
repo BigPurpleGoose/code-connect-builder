@@ -67,8 +67,8 @@ export function PropList({ validationMap }: PropListProps) {
       {/* Section header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <List className="h-4 w-4 text-neutral-400" />
-          <h2 className="text-sm font-bold text-neutral-700">Props</h2>
+          <List className="h-4 w-4 text-neutral-500" />
+          <h2 className="text-sm font-bold text-neutral-200">Props</h2>
           <Badge>{activeDef.props.length}</Badge>
         </div>
         <AddPropMenu onAdd={addProp} />
@@ -76,12 +76,12 @@ export function PropList({ validationMap }: PropListProps) {
 
       {/* Empty state */}
       {activeDef.props.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-12 text-center">
-          <List className="h-8 w-8 text-neutral-300 mb-3" />
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-700 py-12 text-center">
+          <List className="h-8 w-8 text-neutral-600 mb-3" />
           <p className="text-sm font-medium text-neutral-400">
             No properties mapped yet
           </p>
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="mt-1 text-xs text-neutral-500">
             Click "Add Prop" above to connect Figma properties
           </p>
         </div>
@@ -129,7 +129,7 @@ function AddPropMenu({ onAdd }: { onAdd: (type: PropType) => void }) {
         <Popover.Content
           align="end"
           sideOffset={6}
-          className="z-40 w-52 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-xl animate-fade-in"
+          className="z-40 w-52 overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl animate-fade-in"
         >
           <div className="p-1.5">
             <p className="px-2 py-1.5 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">

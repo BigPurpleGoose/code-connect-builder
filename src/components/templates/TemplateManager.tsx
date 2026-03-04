@@ -54,7 +54,7 @@ export function TemplateManager() {
     <Popover.Root>
       <Tooltip content="Templates">
         <Popover.Trigger asChild>
-          <button className="inline-flex items-center justify-center gap-1.5 rounded-md p-2 text-neutral-600 border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-300 transition-colors relative">
+          <button className="inline-flex items-center justify-center gap-1.5 rounded-md p-2 text-neutral-300 border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 hover:border-neutral-600 transition-colors relative">
             <Save className="h-4 w-4" />
             {templates.length > 0 && (
               <span className="absolute -top-1 -right-1 rounded-full bg-primary-500 px-1.5 py-px text-[9px] font-bold text-white min-w-[18px] text-center">
@@ -69,10 +69,10 @@ export function TemplateManager() {
         <Popover.Content
           align="end"
           sideOffset={8}
-          className="z-40 w-72 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl animate-fade-in"
+          className="z-40 w-72 overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-xl animate-fade-in"
         >
           {/* Save section */}
-          <div className="border-b border-neutral-100 p-3">
+          <div className="border-b border-neutral-700 p-3">
             {showSaveInput ? (
               <div className="flex items-center gap-2">
                 <input
@@ -97,7 +97,7 @@ export function TemplateManager() {
                 </button>
                 <button
                   onClick={() => setShowSaveInput(false)}
-                  className="p-1.5 rounded-md text-neutral-500 hover:bg-neutral-100"
+                  className="p-1.5 rounded-md text-neutral-400 hover:bg-neutral-800"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -105,7 +105,7 @@ export function TemplateManager() {
             ) : (
               <button
                 onClick={() => setShowSaveInput(true)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-primary-600 hover:bg-primary-50 transition-colors font-medium"
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-primary-400 hover:bg-primary-900/20 transition-colors font-medium"
               >
                 <PlusCircle className="h-4 w-4" />
                 Save current setup as template
@@ -173,7 +173,7 @@ function TemplateRow({
   return (
     <div
       className={cn(
-        "group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-neutral-50 transition-colors",
+        "group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-neutral-800 transition-colors",
       )}
     >
       {isRenaming ? (
@@ -252,14 +252,14 @@ function DeleteTemplateButton({
         </button>
       </AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-neutral-900/50 backdrop-blur-sm" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[60] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-6 shadow-xl radix-content">
-          <AlertDialog.Title className="text-base font-bold text-neutral-900 mb-2">
+        <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" />
+        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[60] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm rounded-xl border border-neutral-700 bg-neutral-900 p-6 shadow-xl radix-content">
+          <AlertDialog.Title className="text-base font-bold text-neutral-100 mb-2">
             Delete template?
           </AlertDialog.Title>
-          <AlertDialog.Description className="text-sm text-neutral-500 mb-5">
-            "<strong>{name}</strong>" will be permanently deleted. This cannot
-            be undone.
+          <AlertDialog.Description className="text-sm text-neutral-400 mb-5">
+            "<strong className="text-neutral-200">{name}</strong>" will be
+            permanently deleted. This cannot be undone.
           </AlertDialog.Description>
           <div className="flex justify-end gap-2">
             <AlertDialog.Cancel asChild>

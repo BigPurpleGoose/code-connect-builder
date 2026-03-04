@@ -40,23 +40,23 @@ export function ExampleBuilder({
   const preview = buildPreview(componentName, config, props);
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-5 space-y-5">
+    <div className="rounded-xl border border-neutral-700 bg-neutral-900/60 p-5 space-y-5">
       <div>
-        <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-0.5">
+        <h3 className="text-caption font-bold text-neutral-400 uppercase tracking-wider mb-0.5">
           Example Render
         </h3>
-        <p className="text-[11px] text-neutral-400">
+        <p className="text-body-sm text-neutral-500">
           Configure how the component appears in Figma's Dev Mode code snippet.
         </p>
       </div>
 
       {/* Spread props toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3">
+      <div className="flex items-center justify-between rounded-lg border border-neutral-700 bg-neutral-900 p-3">
         <div>
-          <p className="text-sm font-medium text-neutral-700">
+          <p className="text-sm font-medium text-neutral-200">
             Spread Figma props
           </p>
-          <p className="text-[11px] text-neutral-400 mt-0.5">
+          <p className="text-body-sm text-neutral-500 mt-0.5">
             Adds <code className="font-mono">&#123;...props&#125;</code> —
             passes all mapped prop values into the component.
           </p>
@@ -77,7 +77,7 @@ export function ExampleBuilder({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+            <p className="text-caption font-bold text-neutral-400 uppercase tracking-wider">
               Prop Overrides
             </p>
             <Tooltip
@@ -86,7 +86,7 @@ export function ExampleBuilder({
             >
               <button
                 type="button"
-                className="text-neutral-400 hover:text-primary-500"
+                className="text-neutral-500 hover:text-primary-400"
               >
                 <span className="text-[10px] border border-neutral-300 rounded-full w-4 h-4 inline-flex items-center justify-center font-bold">
                   ?
@@ -125,7 +125,7 @@ export function ExampleBuilder({
                     updateOverride(override.id, { key: e.target.value })
                   }
                   placeholder="propName"
-                  className="h-8 w-32 rounded-md border border-neutral-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+                  className="h-8 w-32 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 font-mono text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
                 />
                 <span className="text-neutral-400 text-xs">=</span>
                 <div className="relative flex-1">
@@ -140,8 +140,8 @@ export function ExampleBuilder({
                     className={cn(
                       "h-8 w-full rounded-md border px-2.5 pr-8 font-mono text-xs focus:outline-none focus:ring-2",
                       override.isCode
-                        ? "bg-primary-50 border-primary-200 text-primary-700 focus:ring-primary-500/30 focus:border-primary-400"
-                        : "bg-white border-neutral-300 focus:ring-primary-500/30 focus:border-primary-500",
+                        ? "bg-primary-900/20 border-primary-700 text-primary-300 focus:ring-primary-500/30 focus:border-primary-400"
+                        : "bg-neutral-900 border-neutral-700 text-neutral-100 focus:ring-primary-500/30 focus:border-primary-500",
                     )}
                   />
                   <button
@@ -206,7 +206,7 @@ export function ExampleBuilder({
           onChange={(e) => update({ staticChildren: e.target.value })}
           placeholder="e.g. Click me  or  <Icon name='save' />"
           rows={2}
-          className="flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 font-mono text-xs transition-colors resize-none placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+          className="flex w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-100 transition-colors resize-none placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
         />
       </div>
 

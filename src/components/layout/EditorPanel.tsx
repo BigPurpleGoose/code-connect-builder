@@ -10,7 +10,7 @@ export function EditorPanel() {
   const { props: propErrors, def: defErrors } = useValidation();
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white">
+    <div className="flex-1 overflow-y-auto bg-neutral-800">
       <div className="mx-auto max-w-3xl space-y-8 p-8">
         {/* Component configuration (name, URL, import path) */}
         <ComponentMeta defErrors={defErrors} />

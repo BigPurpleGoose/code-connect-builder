@@ -7,6 +7,37 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
+      fontSize: {
+        // Design token typography scale
+        'caption': ['10px', { lineHeight: '14px', letterSpacing: '0.01em' }],
+        'body-sm': ['12px', { lineHeight: '16px' }],
+        'body': ['13px', { lineHeight: '18px' }],
+        'body-md': ['14px', { lineHeight: '20px' }],
+        'heading': ['14px', { lineHeight: '20px', fontWeight: '600' }],
+      },
+      spacing: {
+        // Design token spacing scale (consistent increments)
+        '0.5': '2px',
+        '1': '4px',
+        '2': '8px',
+        '3': '12px',
+        '4': '16px',
+        '5': '20px',
+        '6': '24px',
+        '8': '32px',
+        '10': '40px',
+        '12': '48px',
+      },
+      height: {
+        // Component sizing tokens
+        'input-sm': '28px',
+        'input': '32px',
+        'input-lg': '36px',
+        'button-sm': '28px',
+        'button': '32px',
+        'button-lg': '36px',
+        'header': '48px',
+      },
       colors: {
         // Clean minimal color palette inspired by boringavatars.com
         neutral: {

@@ -55,7 +55,7 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
               value={opt.figma || ""}
               onChange={(e) => updateOption(i, { figma: e.target.value })}
               placeholder="Figma option name"
-              className="h-8 w-full rounded-md border border-neutral-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400"
+              className="h-8 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2.5 text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500"
             />
             <span className="text-neutral-400 text-xs font-mono">→</span>
 
@@ -70,10 +70,10 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
                   opt.isCode ? "Raw JS value" : "React value (string)"
                 }
                 className={cn(
-                  "h-8 w-full rounded-md border px-2.5 pr-8 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-400",
+                  "h-8 w-full rounded-md border px-2.5 pr-8 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500",
                   opt.isCode
-                    ? "bg-primary-50 border-primary-200 text-primary-700 placeholder:text-primary-300"
-                    : "bg-white border-neutral-300 text-neutral-700",
+                    ? "bg-primary-900/20 border-primary-700 text-primary-300 placeholder:text-primary-400"
+                    : "bg-neutral-900 border-neutral-700 text-neutral-100",
                 )}
               />
               <button
@@ -123,10 +123,10 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
       </button>
 
       {/* Code toggle explainer */}
-      <div className="rounded-md bg-neutral-50 border border-neutral-100 p-2.5 text-[10px] text-neutral-500 leading-relaxed">
-        <strong className="text-neutral-600">{"{}"} Code toggle:</strong> By
+      <div className="rounded-md bg-neutral-800 border border-neutral-700 p-2.5 text-[10px] text-neutral-400 leading-relaxed">
+        <strong className="text-neutral-300">{"{}"} Code toggle:</strong> By
         default, React values are treated as strings (wrapped in quotes). Toggle
-        the <Code className="inline h-3 w-3 text-primary-500" /> button on a row
+        the <Code className="inline h-3 w-3 text-primary-400" /> button on a row
         when the React value is raw JavaScript — e.g.{" "}
         <code className="font-mono">true</code>,{" "}
         <code className="font-mono">42</code>, or JSX like{" "}

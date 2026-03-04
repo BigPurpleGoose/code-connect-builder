@@ -45,10 +45,10 @@ export function Select({
         <RadixSelect.Trigger
           id={selectId}
           className={cn(
-            "flex h-9 w-full items-center justify-between rounded-md border bg-white px-3 py-1 text-sm transition-colors",
+            "flex h-9 w-full items-center justify-between rounded-md border bg-neutral-900 text-neutral-100 px-3 py-1 text-sm transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
-            "data-[placeholder]:text-neutral-400",
-            error ? "border-danger-300" : "border-neutral-300",
+            "data-[placeholder]:text-neutral-500",
+            error ? "border-danger-600" : "border-neutral-700",
           )}
         >
           <RadixSelect.Value placeholder={placeholder ?? "Select..."}>
@@ -61,7 +61,7 @@ export function Select({
 
         <RadixSelect.Portal>
           <RadixSelect.Content
-            className="z-50 min-w-[8rem] overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg animate-fade-in"
+            className="z-50 min-w-[8rem] overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 shadow-lg animate-fade-in"
             position="popper"
             sideOffset={4}
           >
@@ -71,9 +71,9 @@ export function Select({
                   key={opt.value}
                   value={opt.value}
                   className={cn(
-                    "relative flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm outline-none",
-                    "data-[highlighted]:bg-neutral-100 data-[highlighted]:text-neutral-900",
-                    "data-[state=checked]:text-primary-600",
+                    "relative flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm text-neutral-200 outline-none",
+                    "data-[highlighted]:bg-neutral-800 data-[highlighted]:text-neutral-100",
+                    "data-[state=checked]:text-primary-400",
                   )}
                 >
                   <RadixSelect.ItemText>{opt.label}</RadixSelect.ItemText>

@@ -16,7 +16,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider select-none"
+            className="text-caption font-bold text-neutral-500 uppercase tracking-wider select-none"
           >
             {label}
           </label>
@@ -25,17 +25,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "flex h-9 w-full rounded-md border bg-white px-3 py-1 text-sm transition-colors",
-            "placeholder:text-neutral-400",
+            "flex h-input w-full rounded-md border bg-neutral-900 px-3 py-1 text-body-md text-neutral-100 transition-colors",
+            "placeholder:text-neutral-500",
             "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
             error
-              ? "border-danger-300 focus:border-danger-400 focus:ring-danger-500/20"
-              : "border-neutral-300",
-            mono && "font-mono text-xs",
+              ? "border-danger-600 focus:border-danger-500 focus:ring-danger-500/20"
+              : "border-neutral-700",
+            mono && "font-mono text-body-sm",
           )}
           {...props}
         />
-        {error && <p className="text-[11px] text-danger-500">{error}</p>}
+        {error && <p className="text-body-sm text-danger-500">{error}</p>}
       </div>
     );
   },
@@ -57,7 +57,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider select-none"
+            className="text-caption font-bold text-neutral-500 uppercase tracking-wider select-none"
           >
             {label}
           </label>
@@ -66,17 +66,17 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "flex w-full rounded-md border bg-white px-3 py-2 text-sm transition-colors resize-none",
-            "placeholder:text-neutral-400",
+            "flex w-full rounded-md border bg-neutral-900 px-3 py-2 text-body-md text-neutral-100 transition-colors resize-none",
+            "placeholder:text-neutral-500",
             "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
             error
-              ? "border-danger-300 focus:border-danger-400 focus:ring-danger-500/20"
-              : "border-neutral-300",
-            mono && "font-mono text-xs",
+              ? "border-danger-600 focus:border-danger-500 focus:ring-danger-500/20"
+              : "border-neutral-700",
+            mono && "font-mono text-body-sm",
           )}
           {...props}
         />
-        {error && <p className="text-[11px] text-danger-500">{error}</p>}
+        {error && <p className="text-body-sm text-danger-500">{error}</p>}
       </div>
     );
   },
