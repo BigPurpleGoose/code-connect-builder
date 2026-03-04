@@ -30,9 +30,9 @@ export function ValidationBar() {
 
   if (totalErrors === 0) {
     return (
-      <div className="flex items-center gap-2 border-b border-emerald-100 bg-emerald-50 px-6 py-2">
-        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-        <p className="text-[11px] font-medium text-emerald-700">
+      <div className="flex items-center gap-2 border-b border-success-100 bg-success-50 px-6 py-2">
+        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success-500" />
+        <p className="text-[11px] font-medium text-success-600">
           All fields look good — ready to copy the generated code.
         </p>
       </div>
@@ -42,19 +42,19 @@ export function ValidationBar() {
   return (
     <div
       className={cn(
-        "flex items-start gap-2 border-b bg-amber-50 border-amber-100 px-6 py-2",
+        "flex items-start gap-2 border-b bg-warning-50 border-warning-100 px-6 py-2",
       )}
     >
-      <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-500 mt-[1px]" />
-      <p className="text-[11px] font-medium text-amber-800 leading-relaxed">
+      <AlertCircle className="h-3.5 w-3.5 shrink-0 text-warning-500 mt-[1px]" />
+      <p className="text-[11px] font-medium text-warning-600 leading-relaxed">
         {totalErrors} issue{totalErrors !== 1 ? "s" : ""} to fix
         {defErrorNames.length > 0 && (
-          <span className="font-normal text-amber-700">
+          <span className="font-normal text-warning-600">
             {" "}
             in: {defErrorNames.join(", ")}
           </span>
         )}
-        <span className="ml-1 font-normal text-amber-600">
+        <span className="ml-1 font-normal text-warning-600">
           — Required fields are highlighted in the editor below.
         </span>
       </p>

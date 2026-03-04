@@ -425,7 +425,10 @@ function parseTSProps(body: string): TSProp[] {
 }
 
 /** Classify a TypeScript type string into a PropDef type + extra data. */
-function classifyTSType(typeStr: string): { type: PropDef['type']; enumOptions?: EnumOption[] } | null {
+function classifyTSType(typeStr: string, depth = 0): { type: PropDef['type']; enumOptions?: EnumOption[] } | null {
+  // Prevent infinite recursion
+  if (depth > 10) return { type: 'string' };
+
   const t = typeStr.replace(/\s+/g, ' ').trim();
 
   // Skip handler / function props
@@ -468,7 +471,7 @@ function classifyTSType(typeStr: string): { type: PropDef['type']; enumOptions?:
   // Mixed union with non-string-literal parts (e.g. string | undefined) → string
   const nonUndefinedParts = unionParts.filter((p) => p !== 'undefined' && p !== 'null');
   if (nonUndefinedParts.length === 1) {
-    return classifyTSType(nonUndefinedParts[0]);
+    return classifyTSType(nonUndefinedParts[0], depth + 1);
   }
 
   // Default fallback for unrecognized types
