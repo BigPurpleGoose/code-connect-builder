@@ -604,8 +604,13 @@ export function getDefinitionWarnings(def: ComponentDefinition): ParseWarning[] 
 // ─── Figma-Enhanced React Import ──────────────────────────────────────────────
 
 /**
+ * @deprecated Legacy function - kept for backward compatibility only.
+ * Use parseReactComponentFileWithManualFigma for new implementations.
+ *
  * Parse a React component file with Figma URL integration.
  * Fetches Figma component schema and intelligently matches props.
+ *
+ * Note: Requires Figma API token and makes network requests.
  */
 export async function parseReactComponentFileWithFigma(
   source: string,
