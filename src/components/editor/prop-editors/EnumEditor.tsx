@@ -31,11 +31,11 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
     <div className="space-y-2">
       {/* Header */}
       <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center mb-1">
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
           Figma Option
         </span>
         <span className="w-6" />
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
           React Value
         </span>
         <span className="w-6" />
@@ -50,28 +50,30 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
           >
             {/* Figma option name */}
             <input
+              id={`enum-figma-${prop.id}-${i}`}
               type="text"
-              value={opt.figma}
+              value={opt.figma || ""}
               onChange={(e) => updateOption(i, { figma: e.target.value })}
               placeholder="Figma option name"
-              className="h-8 w-full rounded-md border border-slate-300 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400"
+              className="h-8 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2.5 text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500"
             />
-            <span className="text-slate-400 text-xs font-mono">→</span>
+            <span className="text-neutral-400 text-xs font-mono">→</span>
 
             {/* React value + code toggle */}
             <div className="relative flex items-center">
               <input
+                id={`enum-react-${prop.id}-${i}`}
                 type="text"
-                value={opt.react}
+                value={opt.react || ""}
                 onChange={(e) => updateOption(i, { react: e.target.value })}
                 placeholder={
                   opt.isCode ? "Raw JS value" : "React value (string)"
                 }
                 className={cn(
-                  "h-8 w-full rounded-md border px-2.5 pr-8 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder:text-slate-400",
+                  "h-8 w-full rounded-md border px-2.5 pr-8 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500",
                   opt.isCode
-                    ? "bg-blue-50 border-blue-200 text-blue-700 placeholder:text-blue-300"
-                    : "bg-white border-slate-300 text-slate-700",
+                    ? "bg-primary-900/20 border-primary-700 text-primary-300 placeholder:text-primary-400"
+                    : "bg-neutral-900 border-neutral-700 text-neutral-100",
                 )}
               />
               <button
@@ -85,8 +87,8 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
                 className={cn(
                   "absolute right-1.5 rounded p-0.5 transition-colors",
                   opt.isCode
-                    ? "text-blue-600 bg-blue-100"
-                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+                    ? "text-primary-600 bg-primary-100"
+                    : "text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100",
                 )}
               >
                 <Code className="h-3 w-3" />
@@ -97,7 +99,7 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
             <button
               type="button"
               onClick={() => removeOption(i)}
-              className="text-slate-400 hover:text-red-500 transition-colors rounded p-0.5"
+              className="text-neutral-400 hover:text-danger-500 transition-colors rounded p-0.5"
               disabled={prop.enumOptions.length <= 1}
             >
               <X className="h-3.5 w-3.5" />
@@ -108,23 +110,23 @@ export function EnumEditor({ prop, onChange, errors = {} }: EnumEditorProps) {
 
       {/* Errors */}
       {errors.enumOptions && (
-        <p className="text-[11px] text-red-500">{errors.enumOptions}</p>
+        <p className="text-[11px] text-danger-500">{errors.enumOptions}</p>
       )}
 
       {/* Add row */}
       <button
         type="button"
         onClick={addOption}
-        className="mt-1 flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 font-medium transition-colors"
+        className="mt-1 flex items-center gap-1 text-[11px] text-primary-600 hover:text-primary-700 font-medium transition-colors"
       >
         <Plus className="h-3 w-3" /> Add Option
       </button>
 
       {/* Code toggle explainer */}
-      <div className="rounded-md bg-slate-50 border border-slate-100 p-2.5 text-[10px] text-slate-500 leading-relaxed">
-        <strong className="text-slate-600">{"{}"} Code toggle:</strong> By
+      <div className="rounded-md bg-neutral-800 border border-neutral-700 p-2.5 text-[10px] text-neutral-400 leading-relaxed">
+        <strong className="text-neutral-300">{"{}"} Code toggle:</strong> By
         default, React values are treated as strings (wrapped in quotes). Toggle
-        the <Code className="inline h-3 w-3 text-blue-500" /> button on a row
+        the <Code className="inline h-3 w-3 text-primary-400" /> button on a row
         when the React value is raw JavaScript — e.g.{" "}
         <code className="font-mono">true</code>,{" "}
         <code className="font-mono">42</code>, or JSX like{" "}

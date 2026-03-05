@@ -40,23 +40,23 @@ export function ExampleBuilder({
   const preview = buildPreview(componentName, config, props);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-5 space-y-5">
+    <div className="rounded-xl border border-neutral-700 bg-neutral-900/60 p-5 space-y-5">
       <div>
-        <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">
+        <h3 className="text-caption font-bold text-neutral-400 uppercase tracking-wider mb-0.5">
           Example Render
         </h3>
-        <p className="text-[11px] text-slate-400">
+        <p className="text-body-sm text-neutral-500">
           Configure how the component appears in Figma's Dev Mode code snippet.
         </p>
       </div>
 
       {/* Spread props toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3">
+      <div className="flex items-center justify-between rounded-lg border border-neutral-700 bg-neutral-900 p-3">
         <div>
-          <p className="text-sm font-medium text-slate-700">
+          <p className="text-sm font-medium text-neutral-200">
             Spread Figma props
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-body-sm text-neutral-500 mt-0.5">
             Adds <code className="font-mono">&#123;...props&#125;</code> —
             passes all mapped prop values into the component.
           </p>
@@ -65,8 +65,8 @@ export function ExampleBuilder({
           checked={config.spreadFigmaProps}
           onCheckedChange={(checked) => update({ spreadFigmaProps: checked })}
           className={cn(
-            "relative h-6 w-11 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-            config.spreadFigmaProps ? "bg-blue-500" : "bg-slate-300",
+            "relative h-6 w-11 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
+            config.spreadFigmaProps ? "bg-primary-500" : "bg-neutral-300",
           )}
         >
           <Switch.Thumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5" />
@@ -77,7 +77,7 @@ export function ExampleBuilder({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-caption font-bold text-neutral-400 uppercase tracking-wider">
               Prop Overrides
             </p>
             <Tooltip
@@ -86,9 +86,9 @@ export function ExampleBuilder({
             >
               <button
                 type="button"
-                className="text-slate-400 hover:text-blue-500"
+                className="text-neutral-500 hover:text-primary-400"
               >
-                <span className="text-[10px] border border-slate-300 rounded-full w-4 h-4 inline-flex items-center justify-center font-bold">
+                <span className="text-[10px] border border-neutral-300 rounded-full w-4 h-4 inline-flex items-center justify-center font-bold">
                   ?
                 </span>
               </button>
@@ -98,7 +98,7 @@ export function ExampleBuilder({
             <button
               type="button"
               onClick={addOverride}
-              className="text-[11px] text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5"
+              className="text-[11px] text-primary-600 hover:text-primary-700 font-medium flex items-center gap-0.5"
             >
               <Plus className="h-3 w-3" /> Add
             </button>
@@ -109,7 +109,7 @@ export function ExampleBuilder({
           <button
             type="button"
             onClick={addOverride}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-200 py-3 text-xs text-slate-400 hover:border-blue-300 hover:text-blue-500 transition-colors"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border-2 border-dashed border-neutral-200 py-3 text-xs text-neutral-400 hover:border-primary-300 hover:text-primary-500 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" /> Add hardcoded prop
           </button>
@@ -118,17 +118,19 @@ export function ExampleBuilder({
             {config.propOverrides.map((override) => (
               <div key={override.id} className="flex items-center gap-2">
                 <input
+                  id={`override-key-${override.id}`}
                   type="text"
                   value={override.key}
                   onChange={(e) =>
                     updateOverride(override.id, { key: e.target.value })
                   }
                   placeholder="propName"
-                  className="h-8 w-32 rounded-md border border-slate-300 bg-white px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+                  className="h-8 w-32 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 font-mono text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
                 />
-                <span className="text-slate-400 text-xs">=</span>
+                <span className="text-neutral-400 text-xs">=</span>
                 <div className="relative flex-1">
                   <input
+                    id={`override-value-${override.id}`}
                     type="text"
                     value={override.value}
                     onChange={(e) =>
@@ -138,8 +140,8 @@ export function ExampleBuilder({
                     className={cn(
                       "h-8 w-full rounded-md border px-2.5 pr-8 font-mono text-xs focus:outline-none focus:ring-2",
                       override.isCode
-                        ? "bg-blue-50 border-blue-200 text-blue-700 focus:ring-blue-500/30 focus:border-blue-400"
-                        : "bg-white border-slate-300 focus:ring-blue-500/30 focus:border-blue-500",
+                        ? "bg-primary-900/20 border-primary-700 text-primary-300 focus:ring-primary-500/30 focus:border-primary-400"
+                        : "bg-neutral-900 border-neutral-700 text-neutral-100 focus:ring-primary-500/30 focus:border-primary-500",
                     )}
                   />
                   <button
@@ -155,8 +157,8 @@ export function ExampleBuilder({
                     className={cn(
                       "absolute right-1.5 top-1.5 rounded px-0.5 text-[10px] font-bold transition-colors",
                       override.isCode
-                        ? "text-blue-600 bg-blue-100"
-                        : "text-slate-400 hover:bg-slate-100",
+                        ? "text-primary-600 bg-primary-100"
+                        : "text-neutral-400 hover:bg-neutral-100",
                     )}
                   >
                     {"{}"}
@@ -165,7 +167,7 @@ export function ExampleBuilder({
                 <button
                   type="button"
                   onClick={() => removeOverride(override.id)}
-                  className="text-slate-400 hover:text-red-500 transition-colors"
+                  className="text-neutral-400 hover:text-danger-500 transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -178,7 +180,10 @@ export function ExampleBuilder({
       {/* Static children */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          <label
+            htmlFor="static-children"
+            className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider"
+          >
             Static Children
           </label>
           <Tooltip
@@ -187,26 +192,27 @@ export function ExampleBuilder({
           >
             <button
               type="button"
-              className="text-slate-400 hover:text-blue-500"
+              className="text-neutral-400 hover:text-primary-500"
             >
-              <span className="text-[10px] border border-slate-300 rounded-full w-4 h-4 inline-flex items-center justify-center font-bold">
+              <span className="text-[10px] border border-neutral-300 rounded-full w-4 h-4 inline-flex items-center justify-center font-bold">
                 ?
               </span>
             </button>
           </Tooltip>
         </div>
         <textarea
+          id="static-children"
           value={config.staticChildren}
           onChange={(e) => update({ staticChildren: e.target.value })}
           placeholder="e.g. Click me  or  <Icon name='save' />"
           rows={2}
-          className="flex w-full rounded-md border border-slate-300 bg-white px-3 py-2 font-mono text-xs transition-colors resize-none placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
+          className="flex w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-100 transition-colors resize-none placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
         />
       </div>
 
       {/* Live preview */}
-      <div className="rounded-lg bg-slate-900 p-3">
-        <p className="text-[10px] text-slate-500 mb-1.5 uppercase tracking-wider font-bold">
+      <div className="rounded-lg bg-neutral-900 p-3">
+        <p className="text-[10px] text-neutral-500 mb-1.5 uppercase tracking-wider font-bold">
           Preview
         </p>
         <code className="text-[11px] font-mono text-emerald-400 whitespace-pre-wrap">

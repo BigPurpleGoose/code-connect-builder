@@ -152,6 +152,7 @@ export function ManualFigmaPropsInput({
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <input
+                  id="new-prop-name"
                   type="text"
                   placeholder="Property name"
                   value={newProp.name}
@@ -180,6 +181,7 @@ export function ManualFigmaPropsInput({
 
               {newProp.type === "VARIANT" && (
                 <textarea
+                  aria-label="Variant options"
                   placeholder="Variant options (one per line)"
                   value={newProp.variantOptions?.join("\n") || ""}
                   onChange={(e) =>
@@ -213,6 +215,7 @@ export function ManualFigmaPropsInput({
       {mode === "json" && (
         <div className="space-y-2">
           <textarea
+            aria-label="JSON schema input"
             placeholder={`Paste JSON schema:
 [
   {"name": "variant", "type": "VARIANT", "variantOptions": ["primary", "secondary"]},
@@ -267,6 +270,7 @@ function PropertyRow({
     <div className="border border-zinc-200 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900 p-2">
       <div className="flex items-center gap-2">
         <input
+          id={`prop-name-${property.name}`}
           type="text"
           value={property.name}
           onChange={(e) => onUpdate({ name: e.target.value })}
@@ -304,6 +308,7 @@ function PropertyRow({
 
       {isExpanded && property.type === "VARIANT" && (
         <textarea
+          aria-label="Variant options for this property"
           placeholder="Variant options (one per line)"
           value={property.variantOptions?.join("\n") || ""}
           onChange={(e) =>

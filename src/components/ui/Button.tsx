@@ -16,22 +16,22 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-slate-900 shadow-sm",
+    "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500 shadow-sm",
   secondary:
-    "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus-visible:ring-slate-200 shadow-sm",
-  ghost: "hover:bg-slate-100 text-slate-600 hover:text-slate-900",
+    "bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 focus-visible:ring-neutral-600 shadow-sm",
+  ghost: "hover:bg-neutral-800 text-neutral-300 hover:text-neutral-100",
   destructive:
-    "bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400 border border-red-100",
+    "bg-danger-900 text-danger-400 hover:bg-danger-800 focus-visible:ring-danger-400 border border-danger-700",
   outline:
-    "bg-transparent border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-300",
+    "bg-transparent border border-neutral-700 text-neutral-300 hover:text-neutral-100 hover:border-neutral-600",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  xs: "h-7 px-2 text-xs gap-1",
-  sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-9 px-4 py-2 text-sm gap-2",
-  icon: "h-9 w-9 p-0",
-  iconSm: "h-6 w-6 p-0",
+  xs: "h-button-sm px-2 text-body-sm gap-1",
+  sm: "h-button px-3 text-body-sm gap-1.5",
+  md: "h-button-lg px-4 py-2 text-body-md gap-2",
+  icon: "h-button-lg w-9 p-0",
+  iconSm: "h-button-sm w-button-sm p-0",
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
