@@ -2,6 +2,7 @@ import React from "react";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { cn } from "@/components/ui/cn";
 import type { PropDef, BooleanMode } from "@/types/connection";
+import { BooleanValueBuilder } from "./BooleanValueBuilder";
 
 interface BooleanEditorProps {
   prop: Extract<PropDef, { type: "boolean" }>;
@@ -139,44 +140,23 @@ export function BooleanEditor({
 
       {/* Complex: true/false value inputs */}
       {prop.boolMode === "complex" && (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <label
-              htmlFor="bool-true-value"
-              className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block"
-            >
-              When True
-            </label>
-            <input
-              id="bool-true-value"
-              type="text"
-              value={prop.boolTrueValue || ""}
-              onChange={(e) => update({ boolTrueValue: e.target.value })}
-              placeholder={`e.g. "large" or <Icon />`}
-              className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder-neutral-500"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label
-              htmlFor="bool-false-value"
-              className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block"
-            >
-              When False
-            </label>
-            <input
-              id="bool-false-value"
-              type="text"
-              value={prop.boolFalseValue || ""}
-              onChange={(e) => update({ boolFalseValue: e.target.value })}
-              placeholder={`e.g. "small" or undefined`}
-              className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder-neutral-500"
-            />
-          </div>
-          <p className="col-span-2 text-[10px] text-neutral-400">
-            Enter raw JavaScript values. Use{" "}
-            <code className="font-mono">undefined</code> to make the prop
-            disappear, <code className="font-mono">"string"</code> for a string,
-            or JSX like <code className="font-mono">{"<Icon />"}</code>.
+        <div className="space-y-4">
+          <BooleanValueBuilder
+            label="When True"
+            value={prop.boolTrueValue || ""}
+            onChange={(v) => update({ boolTrueValue: v })}
+            placeholder="Value when boolean is true"
+          />
+          <BooleanValueBuilder
+            label="When False"
+            value={prop.boolFalseValue || ""}
+            onChange={(v) => update({ boolFalseValue: v })}
+            placeholder="Value when boolean is false"
+          />
+          <p className="text-[10px] text-neutral-400">
+            Use <strong>Visual mode</strong> to compose{" "}
+            <code className="font-mono">figma.*</code> calls with a guided UI,
+            or <strong>Manual mode</strong> for custom JavaScript expressions.
           </p>
         </div>
       )}
