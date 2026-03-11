@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Code, Blocks, Plus, X } from "lucide-react";
 import { cn } from "@/components/ui/cn";
 import type { NestedPropDef } from "@/types/connection";
@@ -63,8 +63,16 @@ export function BooleanValueBuilder({
   const [parentLayer, setParentLayer] = useState("");
   const [nestedProps, setNestedProps] = useState<NestedPropDef[]>([]);
 
+  // Track the last value we generated to avoid parsing our own updates
+  const lastGeneratedRef = useRef<string>("");
+
   // Parse value on mount and when value changes externally
   useEffect(() => {
+    // Skip parsing if this is our own generated value coming back
+    if (value === lastGeneratedRef.current) {
+      return;
+    }
+
     const trimmed = value.trim();
     if (!trimmed || trimmed === "undefined") {
       setVisualType("undefined");
@@ -165,6 +173,7 @@ export function BooleanValueBuilder({
 
   const handleVisualChange = () => {
     const generated = generateValue();
+    lastGeneratedRef.current = generated;
     onChange(generated);
   };
 
@@ -175,6 +184,7 @@ export function BooleanValueBuilder({
     setParentLayer("");
     setNestedProps([]);
     const newValue = newType === "undefined" ? "undefined" : "";
+    lastGeneratedRef.current = newValue;
     onChange(newValue);
   };
 
@@ -207,10 +217,17 @@ export function BooleanValueBuilder({
         <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
           {label}
         </label>
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => setMode(mode === "visual" ? "manual" : "visual")}
-          className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-neutral-400 hover:text-neutral-200 transition-colors rounded border border-neutral-700 hover:border-neutral-600"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setMode(mode === "visual" ? "manual" : "visual");
+            }
+          }}
+          className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-neutral-400 hover:text-neutral-200 transition-colors rounded border border-neutral-700 hover:border-neutral-600 cursor-pointer"
         >
           {mode === "visual" ? (
             <>
@@ -223,7 +240,7 @@ export function BooleanValueBuilder({
               Visual
             </>
           )}
-        </button>
+        </div>
       </div>
 
       {mode === "manual" ? (
@@ -328,23 +345,37 @@ export function BooleanValueBuilder({
                         </option>
                       ))}
                     </select>
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => removeNestedProp(np.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md border border-neutral-700 text-neutral-400 hover:border-danger-500 hover:text-danger-400 transition-colors"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          removeNestedProp(np.id);
+                        }
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-md border border-neutral-700 text-neutral-400 hover:border-danger-500 hover:text-danger-400 transition-colors cursor-pointer"
                     >
                       <X size={14} />
-                    </button>
+                    </div>
                   </div>
                 ))}
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={addNestedProp}
-                  className="flex h-7 items-center gap-1 px-2 text-[11px] font-medium text-neutral-400 hover:text-neutral-200 transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      addNestedProp();
+                    }
+                  }}
+                  className="flex h-7 items-center gap-1 px-2 text-[11px] font-medium text-neutral-400 hover:text-neutral-200 transition-colors cursor-pointer"
                 >
                   <Plus size={12} />
                   Add Property
-                </button>
+                </div>
               </div>
             </div>
           )}
