@@ -104,7 +104,7 @@ export function ManualFigmaPropsInput({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
             mode === "form"
               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
           }`}
         >
           <FormInput size={14} />
@@ -116,14 +116,14 @@ export function ManualFigmaPropsInput({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
             mode === "json"
               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
           }`}
         >
           <Code size={14} />
           Paste JSON
         </button>
         {properties.length > 0 && (
-          <span className="ml-auto text-xs text-zinc-500">
+          <span className="ml-auto text-xs text-neutral-500">
             {properties.length}{" "}
             {properties.length === 1 ? "property" : "properties"}
           </span>

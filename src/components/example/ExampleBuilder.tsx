@@ -1,10 +1,18 @@
 import React from "react";
 import { Plus, X } from "lucide-react";
 import * as Switch from "@radix-ui/react-switch";
-import type { ExampleConfig, PropDef, PropOverride } from "@/types/connection";
+import type {
+  ExampleConfig,
+  PropDef,
+  PropOverride,
+  JsxPropValue,
+  ConditionalBranch,
+} from "@/types/connection";
 import { makePropOverride } from "@/utils/defaults";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/components/ui/cn";
+import { JsxPropValueEditor } from "./JsxPropValueEditor";
+import { ConditionalRenderingEditor } from "./ConditionalRenderingEditor";
 
 interface ExampleBuilderProps {
   config: ExampleConfig;
@@ -177,6 +185,20 @@ export function ExampleBuilder({
         )}
       </div>
 
+      {/* JSX Prop Values */}
+      <JsxPropValueEditor
+        jsxPropValues={config.jsxPropValues}
+        props={props}
+        onChange={(updated) => update({ jsxPropValues: updated })}
+      />
+
+      {/* Conditional Rendering */}
+      <ConditionalRenderingEditor
+        conditionalBranches={config.conditionalBranches}
+        props={props}
+        onChange={(updated) => update({ conditionalBranches: updated })}
+      />
+
       {/* Static children */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
@@ -223,13 +245,92 @@ export function ExampleBuilder({
   );
 }
 
+// Helper to generate JSX element for JSX prop value
+function buildJsxPropElement(jsxProp: JsxPropValue): string {
+  if (!jsxProp.componentName.trim()) return "";
+
+  const attrs = jsxProp.componentProps
+    .filter((attr) => attr.key.trim() && attr.value.trim())
+    .map((attr) => {
+      const key = attr.key.trim();
+      let value: string;
+
+      switch (attr.valueType) {
+        case "static":
+          value = `"${attr.value.trim()}"`;
+          break;
+        case "nestedProp":
+        case "code":
+          value = `{${attr.value.trim()}}`;
+          break;
+        default:
+          value = `"${attr.value.trim()}"`;
+      }
+
+      return `${key}=${value}`;
+    })
+    .join(" ");
+
+  const component = jsxProp.componentName.trim();
+  if (attrs) {
+    return `<${component} ${attrs} />`;
+  }
+  return `<${component} />`;
+}
+
+// Helper to wrap JSX in conditional
+function wrapInConditionalPreview(
+  jsx: string,
+  branch: ConditionalBranch,
+  usePropsObject: boolean,
+): string {
+  if (!branch.propName.trim() || !branch.thenRender.trim()) return jsx;
+
+  const propRef = usePropsObject
+    ? `props.${branch.propName.trim()}`
+    : branch.propName.trim();
+
+  let condition: string;
+  if (branch.propType === "boolean") {
+    if (branch.condition === "false") {
+      condition = `!${propRef}`;
+    } else {
+      condition = propRef;
+    }
+  } else {
+    condition = `${propRef} === "${branch.condition}"`;
+  }
+
+  const thenBlock = branch.thenRender.trim();
+  const elseBlock = branch.elseRender?.trim();
+
+  if (elseBlock) {
+    return `${condition} ? (\n    ${thenBlock}\n  ) : (\n    ${elseBlock}\n  )`;
+  } else {
+    return `${condition} ? (\n    ${thenBlock}\n  ) : (\n    ${jsx}\n  )`;
+  }
+}
+
 function buildPreview(
   name: string,
   config: ExampleConfig,
   props: PropDef[],
 ): string {
-  const overrideStr = config.propOverrides
-    .filter((o) => o.key.trim() && o.value.trim())
+  // Step 1: Process JSX prop values
+  const jsxPropOverrides = config.jsxPropValues
+    .filter((jp) => jp.propKey.trim() && jp.componentName.trim())
+    .map((jp) => ({
+      key: jp.propKey.trim(),
+      value: buildJsxPropElement(jp),
+      isCode: true,
+    }));
+
+  const allOverrides = [
+    ...config.propOverrides.filter((o) => o.key.trim() && o.value.trim()),
+    ...jsxPropOverrides,
+  ];
+
+  const overrideStr = allOverrides
     .map((o) => {
       const val = o.isCode ? `{${o.value}}` : `"${o.value}"`;
       return `${o.key}=${val}`;
@@ -238,35 +339,63 @@ function buildPreview(
 
   const children = config.staticChildren.trim();
 
+  // Step 2: Generate base JSX
+  let baseJsx: string;
+  let paramStr: string;
+
   if (config.spreadFigmaProps) {
+    paramStr = "props";
     const attrs = ["{...props}", overrideStr].filter(Boolean).join(" ");
     if (children) {
-      return `(props) => (\n  <${name}${attrs ? " " + attrs : ""}>\n    ${children}\n  </${name}>\n)`;
+      baseJsx = `<${name}${attrs ? " " + attrs : ""}>\n    ${children}\n  </${name}>`;
+    } else {
+      baseJsx = `<${name}${attrs ? " " + attrs : ""} />`;
     }
-    return `(props) => <${name}${attrs ? " " + attrs : ""} />`;
+  } else {
+    // Destructured form
+    const mappedProps = props.filter((p) => p.reactProp.trim());
+    const overrideKeys = new Set(allOverrides.map((o) => o.key.trim()));
+    const destructuredProps = mappedProps.filter(
+      (p) => !overrideKeys.has(p.reactProp.trim()),
+    );
+
+    paramStr =
+      destructuredProps.length > 0
+        ? `{ ${destructuredProps.map((p) => p.reactProp.trim()).join(", ")} }`
+        : "";
+
+    const propAttrs = destructuredProps
+      .map((p) => `${p.reactProp.trim()}={${p.reactProp.trim()}}`)
+      .join(" ");
+    const attrs = [propAttrs, overrideStr].filter(Boolean).join(" ");
+
+    if (children) {
+      baseJsx = `<${name}${attrs ? " " + attrs : ""}>\n    ${children}\n  </${name}>`;
+    } else {
+      baseJsx = `<${name}${attrs ? " " + attrs : ""} />`;
+    }
   }
 
-  // Destructured form
-  const mappedProps = props.filter((p) => p.reactProp.trim());
-  const overrideKeys = new Set(
-    config.propOverrides.map((o) => o.key.trim()).filter(Boolean),
-  );
-  const destructuredProps = mappedProps.filter(
-    (p) => !overrideKeys.has(p.reactProp.trim()),
+  // Step 3: Wrap in conditionals if any exist
+  let finalJsx = baseJsx;
+  const validBranches = config.conditionalBranches.filter(
+    (b) => b.propName.trim() && b.thenRender.trim(),
   );
 
-  const destructureStr =
-    destructuredProps.length > 0
-      ? `{ ${destructuredProps.map((p) => p.reactProp.trim()).join(", ")} }`
-      : "";
-
-  const propAttrs = destructuredProps
-    .map((p) => `${p.reactProp.trim()}={${p.reactProp.trim()}}`)
-    .join(" ");
-  const attrs = [propAttrs, overrideStr].filter(Boolean).join(" ");
-
-  if (children) {
-    return `(${destructureStr}) => (\n  <${name}${attrs ? " " + attrs : ""}>\n    ${children}\n  </${name}>\n)`;
+  if (validBranches.length > 0) {
+    const branch = validBranches[0];
+    finalJsx = wrapInConditionalPreview(
+      baseJsx,
+      branch,
+      config.spreadFigmaProps,
+    );
   }
-  return `(${destructureStr}) => <${name}${attrs ? " " + attrs : ""} />`;
+
+  // Step 4: Format the arrow function
+  const isMultiLine = finalJsx.includes("\n");
+  if (isMultiLine) {
+    return `(${paramStr}) => (\n  ${finalJsx}\n)`;
+  } else {
+    return `(${paramStr}) => ${finalJsx}`;
+  }
 }

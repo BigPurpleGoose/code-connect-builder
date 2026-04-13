@@ -6,6 +6,7 @@ import type { PropDef, PropType } from "@/types/connection";
 import { Select } from "@/components/ui/Select";
 import { Input } from "@/components/ui/Input";
 import { PropTypeTooltip } from "@/components/docs/PropTypeTooltip";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { BooleanEditor } from "./prop-editors/BooleanEditor";
 import { EnumEditor } from "./prop-editors/EnumEditor";
 import { ChildrenEditor } from "./prop-editors/ChildrenEditor";
@@ -18,6 +19,134 @@ import { makePropDef } from "@/utils/defaults";
 import { toCamelCase } from "@/utils/stringUtils";
 import type { PropValidationError } from "@/types/connection";
 import { cn } from "@/components/ui/cn";
+
+// Generate tooltip content showing example transformation
+function getPreviewTooltip(prop: PropDef): React.ReactNode {
+  if (!prop.figmaProp && !prop.reactProp) {
+    return "Configure this prop to see preview";
+  }
+
+  const figma = prop.figmaProp || "(not set)";
+  const react = prop.reactProp || "(not set)";
+
+  switch (prop.type) {
+    case "string":
+    case "textContent":
+    case "instance":
+    case "number":
+      return (
+        <div className="space-y-1">
+          <div className="text-neutral-400 text-[10px] font-semibold uppercase">
+            Mapping Preview
+          </div>
+          <div className="font-mono text-xs">
+            Figma: <span className="text-purple-300">"{figma}"</span> →{" "}
+            <span className="text-blue-300">{react}</span>
+          </div>
+        </div>
+      );
+
+    case "boolean":
+      return (
+        <div className="space-y-1">
+          <div className="text-neutral-400 text-[10px] font-semibold uppercase">
+            Boolean Mapping
+          </div>
+          <div className="font-mono text-xs">
+            Figma: <span className="text-purple-300">"{figma}"</span> →{" "}
+            <span className="text-blue-300">{react}</span>
+          </div>
+          <div className="text-neutral-400 text-[10px] mt-1">
+            Mode:{" "}
+            <span className="text-neutral-200">
+              {prop.boolMode || "simple"}
+            </span>
+            {prop.boolMode === "visibility" && prop.boolChildLayer && (
+              <div>
+                Layer:{" "}
+                <span className="text-neutral-200">{prop.boolChildLayer}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+
+    case "enum":
+      return (
+        <div className="space-y-1">
+          <div className="text-neutral-400 text-[10px] font-semibold uppercase">
+            Variant Mapping
+          </div>
+          <div className="font-mono text-xs mb-1">
+            Figma: <span className="text-purple-300">"{figma}"</span> →{" "}
+            <span className="text-blue-300">{react}</span>
+          </div>
+          {prop.enumOptions && prop.enumOptions.length > 0 && (
+            <div className="text-[10px] space-y-0.5 border-t border-neutral-700 pt-1">
+              {prop.enumOptions.slice(0, 3).map((opt, i) => (
+                <div key={i} className="flex items-center gap-1 font-mono">
+                  <span className="text-purple-300">"{opt.figma}"</span>
+                  <span className="text-neutral-500">→</span>
+                  <span
+                    className={opt.isCode ? "text-green-300" : "text-blue-300"}
+                  >
+                    {opt.isCode ? opt.react : `"${opt.react}"`}
+                  </span>
+                </div>
+              ))}
+              {prop.enumOptions.length > 3 && (
+                <div className="text-neutral-500 italic">
+                  +{prop.enumOptions.length - 3} more
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+
+    case "children":
+      return (
+        <div className="space-y-1">
+          <div className="text-neutral-400 text-[10px] font-semibold uppercase">
+            Children Mapping
+          </div>
+          <div className="font-mono text-xs">
+            React prop: <span className="text-blue-300">{react}</span>
+          </div>
+          {prop.childrenLayers && prop.childrenLayers.length > 0 && (
+            <div className="text-[10px] border-t border-neutral-700 pt-1">
+              Layers:{" "}
+              <span className="text-purple-300">
+                {prop.childrenLayers.filter((l) => l.trim()).join(", ") || "*"}
+              </span>
+            </div>
+          )}
+        </div>
+      );
+
+    case "nestedProps":
+      return (
+        <div className="space-y-1">
+          <div className="text-neutral-400 text-[10px] font-semibold uppercase">
+            Nested Props
+          </div>
+          <div className="font-mono text-xs">
+            Figma: <span className="text-purple-300">"{figma}"</span> →{" "}
+            <span className="text-blue-300">{react}</span>
+          </div>
+          {prop.nestedProps && prop.nestedProps.length > 0 && (
+            <div className="text-[10px] border-t border-neutral-700 pt-1">
+              {prop.nestedProps.length} sub-prop
+              {prop.nestedProps.length !== 1 ? "s" : ""} defined
+            </div>
+          )}
+        </div>
+      );
+
+    default:
+      return "Hover for mapping preview";
+  }
+}
 
 const PROP_TYPE_OPTIONS: {
   value: PropType;
@@ -172,20 +301,26 @@ export function PropCard({
             {index + 1}
           </span>
 
-          {/* Property names */}
-          <div className="flex flex-1 items-center gap-2 min-w-0">
-            <code className="text-body font-mono text-neutral-400 font-medium truncate">
-              {prop.reactProp || (
-                <span className="text-neutral-400">unnamed</span>
-              )}
-            </code>
-            <span className="text-neutral-100">→</span>
-            <span className="text-body text-neutral-600 truncate">
-              {prop.figmaProp || (
-                <span className="text-neutral-300 italic">no mapping</span>
-              )}
-            </span>
-          </div>
+          {/* Property names with preview tooltip */}
+          <Tooltip
+            content={getPreviewTooltip(prop)}
+            side="top"
+            delayDuration={300}
+          >
+            <div className="flex flex-1 items-center gap-2 min-w-0">
+              <code className="text-body font-mono text-neutral-400 font-medium truncate min-w-0">
+                {prop.reactProp || (
+                  <span className="text-neutral-400">unnamed</span>
+                )}
+              </code>
+              <span className="text-neutral-100 flex-shrink-0">→</span>
+              <span className="text-body text-neutral-600 truncate min-w-0">
+                {prop.figmaProp || (
+                  <span className="text-neutral-300 italic">no mapping</span>
+                )}
+              </span>
+            </div>
+          </Tooltip>
 
           {/* Type badge */}
           <span

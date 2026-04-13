@@ -134,6 +134,36 @@ export function BooleanEditor({
             <code className="font-mono">undefined</code> and disappears from the
             code snippet.
           </p>
+
+          {/* Auto-generate conditional checkbox */}
+          <div className="flex items-start gap-2 mt-3 p-3 rounded-lg bg-primary-900/10 border border-primary-500/30">
+            <input
+              type="checkbox"
+              id="auto-generate-conditional"
+              checked={prop.autoGenerateConditional || false}
+              onChange={(e) =>
+                update({ autoGenerateConditional: e.target.checked })
+              }
+              className="mt-0.5 h-4 w-4 rounded border-neutral-700 text-primary-500 focus:ring-2 focus:ring-primary-500/30"
+            />
+            <label
+              htmlFor="auto-generate-conditional"
+              className="flex-1 text-[11px] text-neutral-300 cursor-pointer"
+            >
+              <strong className="text-primary-400">
+                Auto-generate conditional in example
+              </strong>
+              <br />
+              <span className="text-neutral-400">
+                Automatically creates a ternary expression like{" "}
+                <code className="font-mono text-[10px]">
+                  {prop.reactProp || "propName"} ?
+                  &lt;Component&gt;&#123;children&#125;&lt;/Component&gt; :
+                  &lt;Component /&gt;
+                </code>
+              </span>
+            </label>
+          </div>
         </div>
       )}
 
@@ -153,8 +183,19 @@ export function BooleanEditor({
               value={prop.boolTrueValue || ""}
               onChange={(e) => update({ boolTrueValue: e.target.value })}
               placeholder={`e.g. "large" or <Icon />`}
-              className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder-neutral-500"
+              className={cn(
+                "flex h-9 w-full rounded-md border bg-neutral-900 px-3 font-mono text-xs text-neutral-100 transition-colors",
+                "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
+                errors.boolTrueValue
+                  ? "border-amber-500"
+                  : "border-neutral-700 placeholder-neutral-500",
+              )}
             />
+            {errors.boolTrueValue && (
+              <p className="text-[11px] text-amber-500">
+                {errors.boolTrueValue}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <label
@@ -169,14 +210,31 @@ export function BooleanEditor({
               value={prop.boolFalseValue || ""}
               onChange={(e) => update({ boolFalseValue: e.target.value })}
               placeholder={`e.g. "small" or undefined`}
-              className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 font-mono text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder-neutral-500"
+              className={cn(
+                "flex h-9 w-full rounded-md border bg-neutral-900 px-3 font-mono text-xs text-neutral-100 transition-colors",
+                "focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500",
+                errors.boolFalseValue
+                  ? "border-amber-500"
+                  : "border-neutral-700 placeholder-neutral-500",
+              )}
             />
+            {errors.boolFalseValue && (
+              <p className="text-[11px] text-amber-500">
+                {errors.boolFalseValue}
+              </p>
+            )}
           </div>
           <p className="col-span-2 text-[10px] text-neutral-400">
             Enter raw JavaScript values. Use{" "}
             <code className="font-mono">undefined</code> to make the prop
             disappear, <code className="font-mono">"string"</code> for a string,
             or JSX like <code className="font-mono">{"<Icon />"}</code>.
+            <br />
+            Common patterns:{" "}
+            <code className="font-mono">
+              figma.instance('PropertyName')
+            </code>,{" "}
+            <code className="font-mono">figma.children(['LayerName'])</code>
           </p>
         </div>
       )}

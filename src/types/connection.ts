@@ -12,9 +12,10 @@ export interface NestedPropDef {
   id: string;
   reactProp: string;
   figmaProp: string;
-  type: 'string' | 'boolean' | 'children' | 'textContent' | 'number';
+  type: 'string' | 'boolean' | 'children' | 'textContent' | 'number' | 'enum' | 'instance';
   boolMode?: BooleanMode;
   boolChildLayer?: string;
+  enumOptions?: EnumOption[];
 }
 
 export type PropType =
@@ -42,6 +43,7 @@ export type PropDef =
       boolChildLayer: string;
       boolTrueValue: string;
       boolFalseValue: string;
+      autoGenerateConditional?: boolean;  // Auto-create conditional branch for visibility mode
     }
   | {
       id: string;
@@ -74,10 +76,39 @@ export interface PropOverride {
   isCode: boolean;
 }
 
+// ─── Conditional Rendering ────────────────────────────────────────────────────
+
+export interface ConditionalBranch {
+  id: string;
+  propName: string;        // Which prop to check (must be boolean or enum)
+  propType: 'boolean' | 'enum';
+  condition: string;       // e.g., "true" or "disabled" (enum value)
+  thenRender: string;      // JSX when condition matches
+  elseRender?: string;     // JSX when condition doesn't match (optional)
+}
+
+// ─── JSX Prop Values ─────────────────────────────────────────────────────────
+
+export interface JsxPropAttr {
+  id: string;
+  key: string;             // Prop name on the JSX element
+  value: string;           // Value (can reference nestedProps with dot notation)
+  valueType: 'static' | 'nestedProp' | 'code';
+}
+
+export interface JsxPropValue {
+  id: string;
+  propKey: string;         // Target prop name (e.g., "heading")
+  componentName: string;   // JSX element name (e.g., "TaskCard.Heading")
+  componentProps: JsxPropAttr[];  // Props passed to the JSX element
+}
+
 export interface ExampleConfig {
   spreadFigmaProps: boolean;
   staticChildren: string;
   propOverrides: PropOverride[];
+  conditionalBranches: ConditionalBranch[];
+  jsxPropValues: JsxPropValue[];
 }
 
 // ─── Variant Scope & Links ───────────────────────────────────────────────────
@@ -128,7 +159,7 @@ export interface Template {
 // ─── Validation ───────────────────────────────────────────────────────────────
 
 export interface PropValidationError {
-  field: 'reactProp' | 'figmaProp' | 'boolChildLayer' | 'enumOptions' | 'children' | 'importPath';
+  field: 'reactProp' | 'figmaProp' | 'boolChildLayer' | 'boolTrueValue' | 'boolFalseValue' | 'enumOptions' | 'children' | 'importPath' | 'nestedProps' | 'conditionalBranch' | 'jsxPropValue';
   message: string;
   severity?: 'error' | 'warning'; // defaults to 'error' when absent
 }

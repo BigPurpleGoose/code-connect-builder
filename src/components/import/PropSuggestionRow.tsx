@@ -17,7 +17,7 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
   const isIncompatible = pattern?.isCalculated || pattern?.isHandler;
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 p-3 space-y-2">
+    <div className="border border-neutral-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 p-3 space-y-2">
       {/* React Prop Header */}
       <div className="flex items-start gap-2">
         <div className="mt-0.5">
@@ -31,15 +31,15 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <code className="text-sm font-mono font-medium text-zinc-900 dark:text-zinc-100">
+            <code className="text-sm font-mono font-medium text-neutral-900 dark:text-neutral-100">
               {reactProp}
             </code>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">
               {reactType}
             </span>
           </div>
           {pattern && (
-            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+            <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">
               {pattern.reason}
             </p>
           )}
@@ -53,7 +53,7 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
         </div>
       ) : rankedSuggestions && rankedSuggestions.length > 0 ? (
         <div className="pl-6 space-y-1.5">
-          <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+          <p className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
             Suggested matches:
           </p>
           {rankedSuggestions.map((suggestion, idx) => (
@@ -62,7 +62,7 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
               className={`flex items-start gap-2 px-2 py-1.5 rounded text-xs ${
                 idx === 0
                   ? "bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800"
-                  : "bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
+                  : "bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
               }`}
             >
               {/* Rank Badge */}
@@ -70,7 +70,7 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
                 className={`flex-shrink-0 font-bold ${
                   idx === 0
                     ? "text-blue-700 dark:text-blue-300"
-                    : "text-zinc-500 dark:text-zinc-400"
+                    : "text-neutral-500 dark:text-neutral-400"
                 }`}
               >
                 #{idx + 1}
@@ -79,10 +79,10 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
               {/* Suggestion Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <code className="font-mono font-medium text-zinc-900 dark:text-zinc-100">
+                  <code className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
                     {suggestion.figmaProp}
                   </code>
-                  <span className="text-zinc-500 dark:text-zinc-400">
+                  <span className="text-neutral-500 dark:text-neutral-400">
                     {suggestion.figmaType}
                   </span>
                   <span
@@ -101,7 +101,7 @@ export function PropSuggestionRow({ match }: PropSuggestionRowProps) {
                     </span>
                   )}
                 </div>
-                <p className="text-zinc-600 dark:text-zinc-400 mt-0.5">
+                <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">
                   {suggestion.reasoning}
                 </p>
               </div>

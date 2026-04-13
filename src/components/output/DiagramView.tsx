@@ -1,8 +1,8 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, Share2, Download } from "lucide-react";
+import { X, Share2, Download, Sparkles } from "lucide-react";
 import { useConnection } from "@/contexts/ConnectionContext";
-import type { ComponentDefinition } from "@/types/connection";
+import type { ComponentDefinition, PropDef } from "@/types/connection";
 
 // Layout constants
 const W = 860;
@@ -75,9 +75,22 @@ function PropTypeChip({ type }: { type: string }) {
 interface ComponentBlockProps {
   def: ComponentDefinition;
   yOffset: number;
+  selectedPropId: string | null;
+  hoveredPropId: string | null;
+  animationsEnabled: boolean;
+  onPropClick: (propId: string) => void;
+  onPropHover: (propId: string | null) => void;
 }
 
-function ComponentBlock({ def, yOffset }: ComponentBlockProps) {
+function ComponentBlock({
+  def,
+  yOffset,
+  selectedPropId,
+  hoveredPropId,
+  animationsEnabled,
+  onPropClick,
+  onPropHover,
+}: ComponentBlockProps) {
   const blockH = computeComponentHeight(def);
   const showProps = def.props.filter((p) => p.reactProp.trim());
 
@@ -90,8 +103,8 @@ function ComponentBlock({ def, yOffset }: ComponentBlockProps) {
         width={W - (LEFT_X - 8) * 2}
         height={blockH}
         rx={12}
-        fill="#F8FAFC"
-        stroke="#E2E8F0"
+        fill="#FAFAFA"
+        stroke="#E5E5E5"
         strokeWidth={1.5}
       />
 
@@ -164,8 +177,31 @@ function ComponentBlock({ def, yOffset }: ComponentBlockProps) {
           i * (NODE_H + NODE_GAP) +
           NODE_H / 2;
 
+        const isSelected = prop.id === selectedPropId;
+        const isHovered = prop.id === hoveredPropId;
+        const isHighlighted = isSelected || isHovered;
+
+        const figmaNodeFil = isHighlighted ? "#F5F3FF" : "white";
+        const figmaStroke = isHighlighted ? "#9333EA" : "#DDD6FE";
+        const figmaStrokeWidth = isHighlighted ? 2 : 1.5;
+
+        const reactNodeFill = isHighlighted ? "#EFF6FF" : "white";
+        const reactStroke = isHighlighted ? "#2563EB" : "#BFDBFE";
+        const reactStrokeWidth = isHighlighted ? 2 : 1.5;
+
+        const lineStroke = isHighlighted ? "#6366F1" : "#CBD5E1";
+        const lineWidth = isHighlighted ? 2 : 1;
+        const arrowFill = isHighlighted ? "#6366F1" : "#CBD5E1";
+
         return (
-          <g key={prop.id} transform={`translate(0, ${y})`}>
+          <g
+            key={prop.id}
+            transform={`translate(0, ${y})`}
+            onClick={() => onPropClick(prop.id)}
+            onMouseEnter={() => onPropHover(prop.id)}
+            onMouseLeave={() => onPropHover(null)}
+            style={{ cursor: "pointer" }}
+          >
             {/* Figma node */}
             <rect
               x={LEFT_X}
@@ -173,49 +209,83 @@ function ComponentBlock({ def, yOffset }: ComponentBlockProps) {
               width={COL_W}
               height={NODE_H}
               rx={6}
-              fill="white"
-              stroke="#DDD6FE"
-              strokeWidth={1.5}
+              fill={figmaNodeFil}
+              stroke={figmaStroke}
+              strokeWidth={figmaStrokeWidth}
+              className={isHighlighted ? "transition-all" : ""}
             />
             <text
               x={LEFT_X + 10}
               y={5}
               fill="#6D28D9"
-              style={{ fontSize: 11, fontFamily: "monospace" }}
+              style={{
+                fontSize: 11,
+                fontFamily: "monospace",
+                fontWeight: isHighlighted ? 600 : 400,
+              }}
             >
               {prop.figmaProp || "(unnamed)"}
             </text>
 
-            {/* Connector line */}
+            {/* Connector line with animation */}
             <line
               x1={LEFT_X + COL_W + 4}
               y1={0}
               x2={CENTER_X - 36}
               y2={0}
-              stroke="#CBD5E1"
-              strokeWidth={1}
+              stroke={lineStroke}
+              strokeWidth={lineWidth}
               strokeDasharray="3 2"
-            />
+            >
+              {isHighlighted && animationsEnabled && (
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="0"
+                  to="-10"
+                  dur="0.8s"
+                  repeatCount="indefinite"
+                />
+              )}
+            </line>
             <line
               x1={CENTER_X + 36}
               y1={0}
               x2={RIGHT_X - 4}
               y2={0}
-              stroke="#CBD5E1"
-              strokeWidth={1}
+              stroke={lineStroke}
+              strokeWidth={lineWidth}
               strokeDasharray="3 2"
-            />
+            >
+              {isHighlighted && animationsEnabled && (
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from="0"
+                  to="-10"
+                  dur="0.8s"
+                  repeatCount="indefinite"
+                />
+              )}
+            </line>
 
             {/* Type chip */}
             <g transform={`translate(0, 0)`}>
               <PropTypeChip type={prop.type} />
             </g>
 
-            {/* Arrowhead */}
+            {/* Arrowhead with pulse animation */}
             <polygon
               points={`${RIGHT_X - 6},${-4} ${RIGHT_X},0 ${RIGHT_X - 6},${4}`}
-              fill="#CBD5E1"
-            />
+              fill={arrowFill}
+            >
+              {isHighlighted && animationsEnabled && (
+                <animate
+                  attributeName="opacity"
+                  values="1;0.4;1"
+                  dur="1.2s"
+                  repeatCount="indefinite"
+                />
+              )}
+            </polygon>
 
             {/* React node */}
             <rect
@@ -224,15 +294,20 @@ function ComponentBlock({ def, yOffset }: ComponentBlockProps) {
               width={COL_W}
               height={NODE_H}
               rx={6}
-              fill="white"
-              stroke="#BFDBFE"
-              strokeWidth={1.5}
+              fill={reactNodeFill}
+              stroke={reactStroke}
+              strokeWidth={reactStrokeWidth}
+              className={isHighlighted ? "transition-all" : ""}
             />
             <text
               x={RIGHT_X + 10}
               y={5}
               fill="#1D4ED8"
-              style={{ fontSize: 11, fontFamily: "monospace" }}
+              style={{
+                fontSize: 11,
+                fontFamily: "monospace",
+                fontWeight: isHighlighted ? 600 : 400,
+              }}
             >
               {prop.reactProp}
             </text>
@@ -246,6 +321,9 @@ function ComponentBlock({ def, yOffset }: ComponentBlockProps) {
 export function DiagramView() {
   const { definitions } = useConnection();
   const svgRef = useRef<SVGSVGElement>(null);
+  const [selectedPropId, setSelectedPropId] = useState<string | null>(null);
+  const [hoveredPropId, setHoveredPropId] = useState<string | null>(null);
+  const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const totalH = computeTotalHeight(definitions);
 
   const downloadSvg = () => {
@@ -261,6 +339,14 @@ export function DiagramView() {
     URL.revokeObjectURL(url);
   };
 
+  const handlePropClick = (propId: string) => {
+    setSelectedPropId(selectedPropId === propId ? null : propId);
+  };
+
+  const handlePropHover = (propId: string | null) => {
+    setHoveredPropId(propId);
+  };
+
   // Compute Y offsets per definition
   let currentY = TITLE_SECTION_H;
   const offsets: number[] = [];
@@ -272,34 +358,48 @@ export function DiagramView() {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-colors">
+        <button className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-neutral-600 border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-300 transition-colors">
           <Share2 className="h-3.5 w-3.5" />
           Diagram
         </button>
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm radix-overlay" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-neutral-900/60 backdrop-blur-sm radix-overlay" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-5xl max-h-[90vh] flex flex-col rounded-2xl bg-white shadow-2xl radix-content focus:outline-none">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50 rounded-t-2xl shrink-0">
+          <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4 bg-neutral-50 rounded-t-2xl shrink-0">
             <div>
-              <Dialog.Title className="text-base font-bold text-slate-900">
+              <Dialog.Title className="text-base font-bold text-neutral-900">
                 Mapping Diagram
               </Dialog.Title>
-              <Dialog.Description className="text-xs text-slate-500 mt-0.5">
+              <Dialog.Description className="text-xs text-neutral-500 mt-0.5">
                 Visual overview of Figma → React connections
               </Dialog.Description>
             </div>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => setAnimationsEnabled(!animationsEnabled)}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium border transition-colors ${
+                  animationsEnabled
+                    ? "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
+                    : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100"
+                }`}
+                title={
+                  animationsEnabled ? "Disable animations" : "Enable animations"
+                }
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                {animationsEnabled ? "Animations On" : "Animations Off"}
+              </button>
+              <button
                 onClick={downloadSvg}
-                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-neutral-600 border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" /> Download SVG
               </button>
               <Dialog.Close asChild>
-                <button className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                <button className="rounded-md p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors">
                   <X className="h-5 w-5" />
                 </button>
               </Dialog.Close>
@@ -307,7 +407,7 @@ export function DiagramView() {
           </div>
 
           {/* SVG canvas */}
-          <div className="flex-1 overflow-auto bg-slate-100 p-6 rounded-b-2xl">
+          <div className="flex-1 overflow-auto bg-neutral-100 p-6 rounded-b-2xl">
             <div className="flex justify-center">
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <svg
@@ -398,6 +498,11 @@ export function DiagramView() {
                       key={def.id}
                       def={def}
                       yOffset={offsets[i]}
+                      selectedPropId={selectedPropId}
+                      hoveredPropId={hoveredPropId}
+                      animationsEnabled={animationsEnabled}
+                      onPropClick={handlePropClick}
+                      onPropHover={handlePropHover}
                     />
                   ))}
                 </svg>

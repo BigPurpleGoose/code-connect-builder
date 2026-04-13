@@ -1,7 +1,7 @@
 import React from "react";
-import { Plus, X } from "lucide-react";
-import type { PropDef, NestedPropDef } from "@/types/connection";
-import { makeNestedPropDef } from "@/utils/defaults";
+import { Plus, X, Code } from "lucide-react";
+import type { PropDef, NestedPropDef, EnumOption } from "@/types/connection";
+import { makeNestedPropDef, makeEnumOption } from "@/utils/defaults";
 import { toCamelCase } from "@/utils/stringUtils";
 import { cn } from "@/components/ui/cn";
 
@@ -14,6 +14,8 @@ const NESTED_TYPE_OPTIONS: { value: NestedPropDef["type"]; label: string }[] = [
   { value: "string", label: "String" },
   { value: "number", label: "Number" },
   { value: "boolean", label: "Boolean" },
+  { value: "enum", label: "Enum" },
+  { value: "instance", label: "Instance" },
   { value: "children", label: "Children" },
   { value: "textContent", label: "Text Content" },
 ];
@@ -40,7 +42,51 @@ export function NestedPropsBuilder({
         if (fields.figmaProp !== undefined && !n.reactProp) {
           updated.reactProp = toCamelCase(fields.figmaProp);
         }
+        // Initialize enumOptions when type changes to enum
+        if (fields.type === "enum" && !updated.enumOptions) {
+          updated.enumOptions = [makeEnumOption()];
+        }
         return updated;
+      }),
+    );
+  };
+
+  const updateEnumOption = (
+    npId: string,
+    optionIndex: number,
+    fields: Partial<EnumOption>,
+  ) => {
+    updateNested(
+      prop.nestedProps.map((n) => {
+        if (n.id !== npId || n.type !== "enum" || !n.enumOptions) return n;
+        const updatedOptions = n.enumOptions.map((opt, i) =>
+          i === optionIndex ? { ...opt, ...fields } : opt,
+        );
+        return { ...n, enumOptions: updatedOptions };
+      }),
+    );
+  };
+
+  const addEnumOption = (npId: string) => {
+    updateNested(
+      prop.nestedProps.map((n) => {
+        if (n.id !== npId || n.type !== "enum") return n;
+        return {
+          ...n,
+          enumOptions: [...(n.enumOptions || []), makeEnumOption()],
+        };
+      }),
+    );
+  };
+
+  const removeEnumOption = (npId: string, optionIndex: number) => {
+    updateNested(
+      prop.nestedProps.map((n) => {
+        if (n.id !== npId || n.type !== "enum" || !n.enumOptions) return n;
+        return {
+          ...n,
+          enumOptions: n.enumOptions.filter((_, i) => i !== optionIndex),
+        };
       }),
     );
   };
@@ -158,6 +204,87 @@ export function NestedPropsBuilder({
                     />
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Enum sub-options for nested props */}
+            {np.type === "enum" && (
+              <div className="ml-0 space-y-1.5 pl-2 border-l-2 border-purple-500/30">
+                <div className="text-[10px] text-neutral-500 font-semibold uppercase tracking-wide">
+                  Enum Options
+                </div>
+                {np.enumOptions &&
+                  np.enumOptions.map((opt, optIdx) => (
+                    <div
+                      key={optIdx}
+                      className="grid grid-cols-[1fr_auto_1fr_auto_auto] gap-1.5 items-center"
+                    >
+                      <input
+                        type="text"
+                        value={opt.figma || ""}
+                        onChange={(e) =>
+                          updateEnumOption(np.id, optIdx, {
+                            figma: e.target.value,
+                          })
+                        }
+                        placeholder="Figma option"
+                        className="h-7 rounded border border-neutral-700 bg-neutral-900 px-2 text-[11px] text-neutral-100 focus:outline-none focus:ring-1 focus:ring-primary-500 placeholder:text-neutral-500"
+                      />
+                      <span className="text-neutral-500 text-[10px]">→</span>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={opt.react || ""}
+                          onChange={(e) =>
+                            updateEnumOption(np.id, optIdx, {
+                              react: e.target.value,
+                            })
+                          }
+                          placeholder={opt.isCode ? "JS value" : "string"}
+                          className={cn(
+                            "h-7 w-full rounded border px-2 pr-7 text-[11px] font-mono focus:outline-none focus:ring-1 focus:ring-primary-500 placeholder:text-neutral-500",
+                            opt.isCode
+                              ? "bg-primary-900/20 border-primary-700 text-primary-300"
+                              : "bg-neutral-900 border-neutral-700 text-neutral-100",
+                          )}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateEnumOption(np.id, optIdx, {
+                              isCode: !opt.isCode,
+                            })
+                          }
+                          title={
+                            opt.isCode ? "Treat as string" : "Treat as code"
+                          }
+                          className={cn(
+                            "absolute right-1 rounded p-0.5 transition-colors",
+                            opt.isCode
+                              ? "text-primary-600 bg-primary-900/40"
+                              : "text-neutral-500 hover:text-neutral-300",
+                          )}
+                        >
+                          <Code className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeEnumOption(np.id, optIdx)}
+                        className="text-neutral-500 hover:text-danger-500 transition-colors"
+                        disabled={np.enumOptions && np.enumOptions.length <= 1}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                <button
+                  type="button"
+                  onClick={() => addEnumOption(np.id)}
+                  className="flex items-center gap-1 text-[10px] text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  <Plus className="h-3 w-3" /> Add Option
+                </button>
               </div>
             )}
           </div>

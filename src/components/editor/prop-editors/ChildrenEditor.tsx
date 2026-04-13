@@ -18,7 +18,7 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
   const addLayer = () => updateLayers([...layers.filter((l) => l !== "*"), ""]);
 
   const updateLayer = (i: number, value: string) =>
-    updateLayers(layers.map((l, idx) => (idx === i ? value : l)));
+    updateLayers(layers.map((l, idx) => (idx === i ? value.trim() : l)));
 
   const removeLayer = (i: number) => {
     const next = layers.filter((_, idx) => idx !== i);
@@ -63,26 +63,45 @@ export function ChildrenEditor({ prop, onChange }: ChildrenEditorProps) {
           <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
             Figma Layer Names
           </p>
-          {layers.map((layer, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <input
-                id={`layer-name-${prop.id}-${i}`}
-                type="text"
-                value={layer || ""}
-                onChange={(e) => updateLayer(i, e.target.value)}
-                placeholder={`Layer name ${i + 1}`}
-                className="h-8 flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 text-xs text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 placeholder:text-neutral-500"
-              />
-              <button
-                type="button"
-                onClick={() => removeLayer(i)}
-                disabled={layers.length <= 1}
-                className="text-neutral-400 hover:text-danger-500 disabled:opacity-30 transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
+          {layers.map((layer, i) => {
+            const hasComma = layer.includes(",");
+            return (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    id={`layer-name-${prop.id}-${i}`}
+                    type="text"
+                    value={layer || ""}
+                    onChange={(e) => updateLayer(i, e.target.value)}
+                    placeholder={`Layer name ${i + 1}`}
+                    className={cn(
+                      "h-8 flex-1 rounded-md border px-2.5 text-xs text-neutral-100 focus:outline-none focus:ring-2 placeholder:text-neutral-500",
+                      hasComma
+                        ? "border-danger-500 bg-danger-950/30 focus:ring-danger-500/30 focus:border-danger-500"
+                        : "border-neutral-700 bg-neutral-900 focus:ring-primary-500/30 focus:border-primary-500",
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeLayer(i)}
+                    disabled={layers.length <= 1}
+                    className="text-neutral-400 hover:text-danger-500 disabled:opacity-30 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                {hasComma && (
+                  <p className="text-[10px] text-danger-400 flex items-start gap-1">
+                    <span className="mt-0.5">❌</span>
+                    <span>
+                      To add multiple layers, use the + button. Don't use commas
+                      inside a layer name.
+                    </span>
+                  </p>
+                )}
+              </div>
+            );
+          })}
           <button
             type="button"
             onClick={addLayer}

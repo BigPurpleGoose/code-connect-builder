@@ -97,7 +97,7 @@ export function ComponentMeta({ defErrors }: ComponentMetaProps) {
         <div className="flex items-center gap-1.5 mb-1.5">
           <label
             htmlFor="figma-url"
-            className="text-caption font-bold text-neutral-500 uppercase tracking-wider"
+            className="text-caption font-bold text-neutral-400 uppercase tracking-wider"
           >
             Figma URL or Node ID
           </label>

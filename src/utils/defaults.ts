@@ -1,4 +1,4 @@
-import type { ComponentDefinition, PropDef, ExampleConfig, NestedPropDef, EnumOption, PropOverride, VariantEntry, LinkDef } from '@/types/connection';
+import type { ComponentDefinition, PropDef, ExampleConfig, NestedPropDef, EnumOption, PropOverride, VariantEntry, LinkDef, ConditionalBranch, JsxPropValue, JsxPropAttr } from '@/types/connection';
 import { genId } from './stringUtils';
 
 export function makeExampleConfig(overrides?: Partial<ExampleConfig>): ExampleConfig {
@@ -6,6 +6,8 @@ export function makeExampleConfig(overrides?: Partial<ExampleConfig>): ExampleCo
     spreadFigmaProps: true,
     staticChildren: '',
     propOverrides: [],
+    conditionalBranches: [],
+    jsxPropValues: [],
     ...overrides,
   };
 }
@@ -14,7 +16,7 @@ export function makePropDef(type: PropDef['type'] = 'string'): PropDef {
   const base = { id: genId(), reactProp: '', figmaProp: '' };
   switch (type) {
     case 'boolean':
-      return { ...base, type: 'boolean', boolMode: 'simple', boolChildLayer: '', boolTrueValue: '', boolFalseValue: '' };
+      return { ...base, type: 'boolean', boolMode: 'simple', boolChildLayer: '', boolTrueValue: '', boolFalseValue: '', autoGenerateConditional: false };
     case 'enum':
       return { ...base, type: 'enum', enumOptions: [makeEnumOption()] };
     case 'children':
@@ -34,8 +36,44 @@ export function makePropOverride(): PropOverride {
   return { id: genId(), key: '', value: '', isCode: false };
 }
 
-export function makeNestedPropDef(): NestedPropDef {
-  return { id: genId(), reactProp: '', figmaProp: '', type: 'string' };
+export function makeConditionalBranch(): ConditionalBranch {
+  return {
+    id: genId(),
+    propName: '',
+    propType: 'boolean',
+    condition: 'true',
+    thenRender: '',
+    elseRender: '',
+  };
+}
+
+export function makeJsxPropAttr(): JsxPropAttr {
+  return {
+    id: genId(),
+    key: '',
+    value: '',
+    valueType: 'static',
+  };
+}
+
+export function makeJsxPropValue(): JsxPropValue {
+  return {
+    id: genId(),
+    propKey: '',
+    componentName: '',
+    componentProps: [],
+  };
+}
+
+export function makeNestedPropDef(type: NestedPropDef['type'] = 'string'): NestedPropDef {
+  const base = { id: genId(), reactProp: '', figmaProp: '', type };
+  if (type === 'enum') {
+    return { ...base, type: 'enum', enumOptions: [makeEnumOption()] };
+  }
+  if (type === 'boolean') {
+    return { ...base, type: 'boolean', boolMode: 'simple', boolChildLayer: '' };
+  }
+  return base as NestedPropDef;
 }
 
 export function makeVariantEntry(): VariantEntry {
@@ -71,7 +109,7 @@ export function makeDefinition(index: number = 0): ComponentDefinition {
     importPath: './Button',
     props: [
       { ...makePropDef('enum'), reactProp: 'kind', figmaProp: 'Kind', type: 'enum', enumOptions: [{ figma: 'Brand', react: 'brand', isCode: false }] } as PropDef,
-      { ...makePropDef('boolean'), reactProp: 'disabled', figmaProp: 'Disabled', type: 'boolean', boolMode: 'simple', boolChildLayer: '', boolTrueValue: '', boolFalseValue: '' } as PropDef,
+      { ...makePropDef('boolean'), reactProp: 'disabled', figmaProp: 'Disabled', type: 'boolean', boolMode: 'simple', boolChildLayer: '', boolTrueValue: '', boolFalseValue: '', autoGenerateConditional: false } as PropDef,
     ],
     example: makeExampleConfig(),
     variantScope: [],

@@ -1,4 +1,4 @@
-import type { ComponentDefinition, PropDef, ExampleConfig, NestedPropDef } from '@/types/connection';
+import type { ComponentDefinition, PropDef, ExampleConfig, NestedPropDef, JsxPropValue, JsxPropAttr, ConditionalBranch } from '@/types/connection';
 import { toStringLiteral, needsQuotes } from './stringUtils';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -28,6 +28,22 @@ function genNestedPropLine(np: NestedPropDef): string {
     case 'children':
       // Always use array form inside nestedProps for consistency
       return `figma.children([${key}])`;
+    case 'instance':
+      return `figma.instance(${key})`;
+    case 'enum': {
+      if (!np.enumOptions || np.enumOptions.length === 0) {
+        return `figma.enum(${key}, {})`;
+      }
+      const entries = np.enumOptions
+        .filter((o) => o.figma.trim())
+        .map((o) => {
+          const k = enumKey(o.figma.trim());
+          const reactVal = o.isCode ? o.react.trim() : toStringLiteral(o.react.trim());
+          return `${k}: ${reactVal}`;
+        })
+        .join(', ');
+      return `figma.enum(${key}, { ${entries} })`;
+    }
     case 'boolean': {
       if (np.boolMode === 'inverse') return `figma.boolean(${key}, { true: false, false: true })`;
       if (np.boolMode === 'visibility') {
@@ -126,6 +142,88 @@ function generatePropMapping(prop: PropDef): string {
 // ─── Example block ────────────────────────────────────────────────────────────
 
 /**
+ * Generate a JSX element for a JSX prop value.
+ * Example: <TaskCard.Heading text={props.heading.text} level="2" />
+ */
+function generateJsxPropElement(jsxProp: JsxPropValue): string {
+  if (!jsxProp.componentName.trim()) return '';
+
+  const attrs = jsxProp.componentProps
+    .filter((attr) => attr.key.trim() && attr.value.trim())
+    .map((attr) => {
+      const key = attr.key.trim();
+      let value: string;
+
+      switch (attr.valueType) {
+        case 'static':
+          // Wrap in quotes
+          value = toStringLiteral(attr.value.trim());
+          break;
+        case 'nestedProp':
+          // Output as code reference (e.g., {props.heading.text})
+          value = `{${attr.value.trim()}}`;
+          break;
+        case 'code':
+          // Output raw code wrapped in braces
+          value = `{${attr.value.trim()}}`;
+          break;
+        default:
+          value = toStringLiteral(attr.value.trim());
+      }
+
+      return `${key}=${value}`;
+    })
+    .join(' ');
+
+  const component = jsxProp.componentName.trim();
+  if (attrs) {
+    return `<${component} ${attrs} />`;
+  }
+  return `<${component} />`;
+}
+
+/**
+ * Wrap JSX in conditional rendering based on a branch.
+ * Example: props.hasIcon ? <Component>{icon}</Component> : <Component />
+ */
+function wrapInConditional(
+  jsx: string,
+  branch: ConditionalBranch,
+  usePropsObject: boolean
+): string {
+  if (!branch.propName.trim() || !branch.thenRender.trim()) return jsx;
+
+  // Determine how to reference the prop
+  const propRef = usePropsObject
+    ? `props.${branch.propName.trim()}`
+    : branch.propName.trim();
+
+  // Build condition based on type
+  let condition: string;
+  if (branch.propType === 'boolean') {
+    if (branch.condition === 'false') {
+      condition = `!${propRef}`;
+    } else {
+      condition = propRef;
+    }
+  } else {
+    // Enum - compare with the value
+    condition = `${propRef} === ${toStringLiteral(branch.condition)}`;
+  }
+
+  const thenBlock = branch.thenRender.trim();
+  const elseBlock = branch.elseRender?.trim();
+
+  // Format with proper indentation
+  if (elseBlock) {
+    return `${condition} ? (\n      ${thenBlock}\n    ) : (\n      ${elseBlock}\n    )`;
+  } else {
+    // No else branch - just the ternary with undefined
+    return `${condition} ? (\n      ${thenBlock}\n    ) : (\n      ${jsx}\n    )`;
+  }
+}
+
+/**
  * Generate the example function expression.
  *
  * When spreadFigmaProps = true  → (props) => <Component {...props} />
@@ -135,8 +233,43 @@ function generatePropMapping(prop: PropDef): string {
  * it explicit which props come from Figma vs. are hardcoded.
  */
 function generateExample(name: string, config: ExampleConfig, props: PropDef[]): string {
-  const overrides = config.propOverrides
-    .filter((o) => o.key.trim() && o.value.trim())
+  // Step 0: Auto-generate conditional branches for visibility mode booleans
+  const autoConditionalBranches = props
+    .filter((p): p is Extract<PropDef, { type: 'boolean' }> =>
+      p.type === 'boolean' &&
+      p.boolMode === 'visibility' &&
+      p.autoGenerateConditional === true &&
+      p.reactProp.trim() !== '' &&
+      p.boolChildLayer.trim() !== ''
+    )
+    .map((p) => ({
+      id: `auto-${p.id}`,
+      propName: p.reactProp.trim(),
+      propType: 'boolean' as const,
+      condition: 'true',
+      thenRender: `{${p.reactProp.trim()}}`,
+      elseRender: undefined,
+    }));
+
+  // Combine auto-generated with manual conditional branches
+  const allBranches = [...autoConditionalBranches, ...config.conditionalBranches];
+
+  // Step 1: Process JSX prop values and add them as code-mode overrides
+  const jsxPropOverrides = config.jsxPropValues
+    .filter((jp) => jp.propKey.trim() && jp.componentName.trim())
+    .map((jp) => ({
+      key: jp.propKey.trim(),
+      value: generateJsxPropElement(jp),
+      isCode: true,
+    }));
+
+  // Combine with regular overrides
+  const allOverrides = [
+    ...config.propOverrides.filter((o) => o.key.trim() && o.value.trim()),
+    ...jsxPropOverrides,
+  ];
+
+  const overrides = allOverrides
     .map((o) => {
       const val = o.isCode ? `{${o.value.trim()}}` : `"${o.value.trim()}"`;
       return `${o.key.trim()}=${val}`;
@@ -145,33 +278,60 @@ function generateExample(name: string, config: ExampleConfig, props: PropDef[]):
 
   const children = config.staticChildren.trim();
 
+  // Step 2: Generate base JSX
+  let baseJsx: string;
+  let paramStr: string;
+
   if (config.spreadFigmaProps) {
+    paramStr = 'props';
     const attrsStr = ['{...props}', overrides].filter(Boolean).join(' ');
     if (children) {
-      return `(props) => (\n    <${name} ${attrsStr}>\n      ${children}\n    </${name}>\n  )`;
+      baseJsx = `<${name} ${attrsStr}>\n      ${children}\n    </${name}>`;
+    } else {
+      baseJsx = `<${name} ${attrsStr} />`;
     }
-    return `(props) => <${name} ${attrsStr} />`;
+  } else {
+    // Destructured form — official API style
+    const mappedProps = props.filter((p) => p.reactProp.trim());
+    const overrideKeys = new Set(allOverrides.map((o) => o.key.trim()));
+    const destructuredProps = mappedProps.filter((p) => !overrideKeys.has(p.reactProp.trim()));
+
+    paramStr =
+      destructuredProps.length > 0
+        ? `{ ${destructuredProps.map((p) => p.reactProp.trim()).join(', ')} }`
+        : '';
+
+    const propAttrs = destructuredProps
+      .map((p) => `${p.reactProp.trim()}={${p.reactProp.trim()}}`)
+      .join(' ');
+    const attrsStr = [propAttrs, overrides].filter(Boolean).join(' ');
+
+    if (children) {
+      baseJsx = `<${name}${attrsStr ? ' ' + attrsStr : ''}>\n      ${children}\n    </${name}>`;
+    } else {
+      baseJsx = `<${name}${attrsStr ? ' ' + attrsStr : ''} />`;
+    }
   }
 
-  // Destructured form — official API style
-  const mappedProps = props.filter((p) => p.reactProp.trim());
-  const overrideKeys = new Set(config.propOverrides.map((o) => o.key.trim()).filter(Boolean));
-  const destructuredProps = mappedProps.filter((p) => !overrideKeys.has(p.reactProp.trim()));
+  // Step 3: Wrap in conditionals if any exist
+  let finalJsx = baseJsx;
+  const validBranches = allBranches.filter(
+    (b) => b.propName.trim() && b.thenRender.trim()
+  );
 
-  const destructureStr =
-    destructuredProps.length > 0
-      ? `{ ${destructuredProps.map((p) => p.reactProp.trim()).join(', ')} }`
-      : '';
-
-  const propAttrs = destructuredProps
-    .map((p) => `${p.reactProp.trim()}={${p.reactProp.trim()}}`)
-    .join(' ');
-  const attrsStr = [propAttrs, overrides].filter(Boolean).join(' ');
-
-  if (children) {
-    return `(${destructureStr}) => (\n    <${name}${attrsStr ? ' ' + attrsStr : ''}>\n      ${children}\n    </${name}>\n  )`;
+  if (validBranches.length > 0) {
+    // For now, support one conditional (can be extended to nested later)
+    const branch = validBranches[0];
+    finalJsx = wrapInConditional(baseJsx, branch, config.spreadFigmaProps);
   }
-  return `(${destructureStr}) => <${name}${attrsStr ? ' ' + attrsStr : ''} />`;
+
+  // Step 4: Format the arrow function
+  const isMultiLine = finalJsx.includes('\n');
+  if (isMultiLine) {
+    return `(${paramStr}) => (\n    ${finalJsx}\n  )`;
+  } else {
+    return `(${paramStr}) => ${finalJsx}`;
+  }
 }
 
 // ─── Full connect block ───────────────────────────────────────────────────────

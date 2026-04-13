@@ -139,7 +139,7 @@ function AddPropMenu({ onAdd }: { onAdd: (type: PropType) => void }) {
               <Popover.Close asChild key={opt.type}>
                 <button
                   onClick={() => onAdd(opt.type)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm text-neutral-700 hover:bg-neutral-100 transition-colors"
+                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm text-neutral-100 hover:bg-neutral-800 transition-colors"
                 >
                   <span className="font-medium">{opt.label}</span>
                   <span className="text-[10px] text-neutral-400">

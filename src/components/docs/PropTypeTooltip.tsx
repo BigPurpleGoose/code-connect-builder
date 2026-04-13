@@ -15,15 +15,15 @@ export function PropTypeTooltip({ propType }: PropTypeTooltipProps) {
   const content = (
     <div className="space-y-2 max-w-[280px]">
       <p className="font-semibold text-white">{doc.label}</p>
-      <p className="text-slate-300 leading-relaxed">{doc.description}</p>
-      <div className="border-t border-slate-700 pt-2">
-        <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+      <p className="text-neutral-300 leading-relaxed">{doc.description}</p>
+      <div className="border-t border-neutral-700 pt-2">
+        <p className="text-[10px] text-neutral-400 uppercase tracking-wider mb-1">
           When to use
         </p>
-        <p className="text-slate-300">{doc.whenToUse}</p>
+        <p className="text-neutral-300">{doc.whenToUse}</p>
       </div>
-      <div className="bg-slate-800 rounded p-2">
-        <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+      <div className="bg-neutral-800 rounded p-2">
+        <p className="text-[10px] text-neutral-400 uppercase tracking-wider mb-1">
           Output example
         </p>
         <code className="text-emerald-400 text-[10px] font-mono whitespace-pre-wrap">
